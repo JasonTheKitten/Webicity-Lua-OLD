@@ -1,0 +1,10 @@
+body {
+    overflow: hidden;
+}
+#showcontent {
+    color: blue;
+    width: 100%;
+}
+#content {
+    visibility: hidden;
+}

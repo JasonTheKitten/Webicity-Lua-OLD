@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Welcome!</title>
+        <script src="scripts/webicity.js"></script>
+        <link rel="stylesheet" type="text/css" src="styles/welcomepage.css"/>
+        </style>
+    </head>
+    <body id = "body">
+        <div id="header">
+            <center>Welcome to</center>
+            <center id="webicity">Webicity!</center>
+            <script>
+                /*global webicity*/ //Make my editor not-so-annoying
+                webicity.colorizeName("webicity");
+            </script>
+        </div>
+        <div id="showcontent">
+        	<script>
+            
+                //Button click manager
+                //////////////////////
+                var learn = function(){
+                    document.getElementById("showcontent").style.visibility = "hidden";
+                    document.getElementById("content").style.visibility = "visible";
+                    document.getElementById("body").style.overflow = "scroll";
+                    window.scrollByPages(1);
+                };
+                
+                //Connect a scroll handler
+                //////////////////////////
+                
+                
+            </script>
+            <div onclick="learn()">Learn more ></div>
+        </div>
+        <div id="content">
+            <div id="welcome">Welcome!</div><br/>
+            <p>We are so glad to have you here!</p><br/><br/>
+            <div class="header">What is Webicity?</div><br/>
+            <p>Webicity is a HTML-based web browser for the ComputerCraft mod</p><br/><br/>
+            <div class="header">Why does it matter?</div><br/>
+            <p>Previously CC-based web, internet, and rednet browsers would use their own markup languages.
+            This means that you could only go to specific sites, and other sites would not work.
+            Webicity is an easy-to-use web & filesystem browser with primary support for HTML,
+            meaning you can browse billions of pages and download millions of files - unrestricted</p><br/><br/>
+            <div class="header">Get Ready!</div><br/>
+            <p>You have alread downloaded Webicity!</p><br/>
+            <div class="header">Get Set!</div><br/>
+            <p>Webicity is configurable. 
+            Either click this <a href="webicity://settings">link</a>, 
+            or choose settings "configure" from the menu.
+            You can also <a href="webicity://experiments">enable features</a> that will be introduced soon</p><br/>
+            <div class="header">Go</div><br/>
+            <p>What are you waiting for? Open a <a href="webicity://newtab" target="">new tab</a> and get browsing!</p><br/><br/>
+            <div class="header">Need help?</div><br/>
+            <p><a href="webicity://newtab" target="">Get Help</a></p><br/><br/>
+            <div class="header">Feelling insecure?</div><br/>
+            <p><a onclick="webicity.openWindow('webicity://incog', true)">Go incog</a></p><br/><br/>
+            <div class="header">Contributing</div><br/>
+            <p>There was once a team of 48 full-grown professionals. It took them
+            weeks to write an internet (web) browser. I am one person, a hobbyist, 15. 
+            PM me at <a href="http://computercraft.info/forums2">the CC forums</a>.</p>
+            <div class="header">Just looking under the hood?</div><br/>
+            <p>The <a href="">source-code</a> is available online.</p><br/><br/>
+        </div>
+    </body>
+</html>
