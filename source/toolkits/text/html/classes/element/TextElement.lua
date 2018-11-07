@@ -1,18 +1,22 @@
 local TextElement = {}
-function TextElement:__call(parent, text)
+function TextElement:__call(parent)
     class.Element.__call(self, parent, false)
     
-    self.text = text
-    self.Rect = new(class.Fluid)
+    self.value = ""
+    self.container = new(class.Fluid)
+	
+	return self
 end
-function Element:calcSize(queue, stack)
-    self.fluid(stack:peek().Rect, stack:peek().Pointer)
-    self.fluid:flow(#self.text)
+function TextElement:calcSize(queue, stack)
+    self.container(stack:peek(), stack:peek().pointer)
+    self.container:flow(#self.value)
+	
+	self.parent.container = self.parent.container + self.container
 end
-function Element:placeProposals(queue)
+function TextElement:placeProposals(queue)
     
 end
-function Element:addChild(child) end
+function TextElement:addChild(child) end
 
 return TextElement, function()
     TextElement.cparents = {class.Element}

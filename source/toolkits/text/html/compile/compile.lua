@@ -1,5 +1,3 @@
-local guiR = webicity.loadfile("source/types/text/html/render/guiR.lua")()
-
 local function falseYield()
     os.queueEvent('')
     coroutine.yield()
@@ -20,12 +18,12 @@ for i=1, #tEscList do escList[tEscList[i]] = true end
 local charstr = "abcdefghijklmnopqrstuvwxyz"
 local chars = {}
 for i=1, #charstr do
-    local c = string.sub(charstr, i, i)
+    local c = charstr:sub(i)
     chars[c] = true
-    chars[string.upper(c)] = true
+    chars[c:upper()] = true
 end
 
-local function parse(str, styling)
+local function parse(str, bo, styling)
     
     styling = styling or {}
     
@@ -75,15 +73,17 @@ local function parse(str, styling)
     local stack = {}
     local function createTag(n, p)
         local t = {
-            tree = {},
+			tree = {},
             styling = styling[n] or {},
             attrs = {},
             type = n,
             parent = p,
-            element = guiR.loadElement(name)
+			element = new(elements[n] or class.Element)(p and p.element, bo)
         }
         
-        if p then table.insert(p.tree, {"tag", t}) end
+        if p then 
+			table.insert(p.tree, {"tag", t})
+		end
         if n then table.insert(stack, n) end
         
         return t
@@ -92,7 +92,6 @@ local function parse(str, styling)
     local d = createTag()
     d.docattr = {}
     d.doctype = "html"
-    d.element = guiR.loadBaseElement("pane"):new()
     
     local mode, curtree, esc = "d", d, nil
     
@@ -113,7 +112,7 @@ local function parse(str, styling)
     		end
     	end
     end
-    
+
     while #str>0 do
         falseYield()
         if mode == "d" then
@@ -143,9 +142,12 @@ local function parse(str, styling)
                 local char = string.sub(str, 1, 1)
                 str = string.sub(str, 2, #str)
                 if (curtree.tree[#curtree.tree] or {})[1] == "text" then
-                    curtree.tree[#curtree.tree][2].value = curtree.tree[#curtree.tree][2].value..char
+                    curtree.tree[#curtree.tree][2].element.value = curtree.tree[#curtree.tree][2].element.value..char
                 else
-                    table.insert(curtree.tree, {"text", {styling = {}, value = "", parent = curtree}})
+                    table.insert(curtree.tree, {"text", {
+						parent = curtree,
+						element = new(class.TextElement)(curtree.element, bo)
+					}})
                 end
             end
         elseif mode == "doc" then

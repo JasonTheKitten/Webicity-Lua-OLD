@@ -25,9 +25,23 @@ function Browser:__call(name, location)
     self.name = name
     self.location = location
     self.classes = {}
+	self.protocolls = {}
+	self.ctypes = {}
+	self.env = {
+		class = self.classes,
+		protocolls = self.protocolls,
+		ctypes = self.ctypes,
+		new = new
+	}
     self:loadClassFolder(
         fs.combine(self.location, "classes"),
-        self.classes)
+        self.classes, self.env)
+	self:loadClassFolder(
+        fs.combine(self.location, "protocolls"),
+        self.protocolls, self.env, "protocolls")
+	self:loadClassFolder(
+		fs.combine(self.location, "toolkitAPIs"),
+        self.ctypes, self.env, "ctypes", true)
     
     if (#(getmetatable(self).cparents) == 0) then
         getmetatable(self).cparents = {self.classes.Class}
@@ -37,13 +51,19 @@ function Browser:__call(name, location)
     
     return self
 end
-function Browser:loadClassFolder(loc, tbl, curClassTbl)
+function Browser:loadClassFolder(loc, tbl, env2, id, presN)
+	id = id or "class"
     local env = {}
     for k, v in pairs(_G) do env[k] = v end
     env._G = env
     env._ENV = env
-    env.class = {}
-    setmetatable(env.class, {__index = curClassTbl})
+    env[id] = tbl
+    setmetatable(env, {__index = env2 or self.env})
+	if id == "class" then
+		for k, v in pairs(self.classes) do
+			env.class[k] = v
+		end
+	end
     local onL = {}
     local queue = {loc}
     while #queue>0 do
@@ -54,13 +74,15 @@ function Browser:loadClassFolder(loc, tbl, curClassTbl)
                 table.insert(queue, fs.combine(n, v))
             end
         else
-			print(queue[1])
             local cls, lH =
                 loadfile(queue[1], env)()
 			local v = fs.getName(queue[1])
+			if presN then
+				v = string.sub(queue[1], #loc+2)
+			end
             local clsn = string.sub(v, 1, #v-4)
             tbl[clsn] = cls
-            env.class[clsn] = cls
+            env[id][clsn] = cls
             table.insert(onL, lH)
 			table.remove(queue, 1)
         end
@@ -69,8 +91,8 @@ function Browser:loadClassFolder(loc, tbl, curClassTbl)
         onL[i]()
     end
 end
-function Browser:loadResource(rctype, name)
-    
+function Browser:getResource(name)
+    return fs.open(fs.combine(self.rclocation, name), "r")
 end
 function Browser:getFile(name, env, merenv, ...)
     env = (env == true and _ENV) or env
@@ -78,11 +100,14 @@ function Browser:getFile(name, env, merenv, ...)
     if env then
         local menv = {}
         for k, v in pairs(env) do menv[k] = v end
-        for k, v in pairs(merenv) do menv[k] = v end
+        for k, v in pairs(merenv or _ENV) do menv[k] = v end
         menv._G = menv
         menv._ENV = menv
         menv.class = {}
-        setmetatable(menv.class, {__index = env.class})
+        setmetatable(menv.class, {__index = self.env.class})
+		setmetatable(menv, {__index = function(mself, k)
+			return rawget(mself, k) or self.env[k]
+		end})
         for k, v in pairs({...}) do
             for k2, v2 in pairs(v) do
                 menv.class[k2] = v2
@@ -96,8 +121,14 @@ end
 function Browser:CreateFrame(term, URL)
     local frame = new(self.classes.Frame)(term)
     local URLO = new(self.classes.URL)(URL)
+    local req = {
+        URL = URLO,
+        page = {
+            window = frame
+        }
+    }
     
-    return new(self.classes.BrowserObject)(frame, URLO)
+    return new(self.classes.BrowserObject)(self, req)
 end
 
 return Browser, new

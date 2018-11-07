@@ -1,7 +1,11 @@
 local RootFrame = {}
 function RootFrame:__call(parent, x, y, l, h)
+    x, y = x or 1, y or 1
+    if not (l and h) then
+        l, h = parent.getSize()
+    end
     class.Frame.__call(self, parent, x, y, l, h)
-    self.colorizer = new(class.display.Colorizer)()
+    self.colorizer = new(class.Colorizer)
     
     return self
 end
@@ -16,12 +20,6 @@ function RootFrame:showPix(x, y, txt, bg, fg)
         self.colorizer:getColor((type(fg) == "function" and fg()) or fg, false))
     self.parent.write((type(txt) == "function" and txt()) or txt or "")
 end
-
---[[function RootFrame:getColor(color, useMonotone, isText)
-    local mon = ((isText and colors.white) or colors.black)
-    return ((useMonotone or not color) and 
-        ((isText and colors.white) or colors.black)) or color
-end]]
 
 return RootFrame, function()
     RootFrame.cparents = {class.Frame}

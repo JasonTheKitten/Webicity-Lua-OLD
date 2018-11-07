@@ -24,5 +24,5 @@ function Pointer:__eq(obj)
 end
 
 return Pointer, function()
-    self.cparents = {class.Class}
+    Pointer.cparents = {class.Class}
 end

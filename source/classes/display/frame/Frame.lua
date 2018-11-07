@@ -13,7 +13,18 @@ end
 function Frame:showPix(x, y, txt, bg, fg)
     local rtn, tx, ty = self:shouldShowPix(x, y, txt, bg, fg) 
 	if not rtn then return end
-    parent.draw(tx+x-1, ty+y-1, txt, bg, fg)
+    parent:draw(tx+x-1, ty+y-1, txt, bg, fg)
+end
+function Frame:redraw()
+	for x, row in ipairs(self.buffer) do
+		for y, column in ipairs(row) do
+			local txt, bg, fg = 
+				(type(column.text) == "function" and column.text()) or column.text,
+				(type(column.background) == "function" and column.background()) or column.background,
+				(type(column.foreground) == "function" and column.foreground()) or column.foreground
+			self:showPix(x, y, txt, bg, fg)
+		end
+	end
 end
     
 function Frame:scroll(x, y)

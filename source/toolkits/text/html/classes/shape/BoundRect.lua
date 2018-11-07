@@ -6,9 +6,9 @@ function BoundRect:__call(window, x, y, l, h)
     
     return self
 end
---[[function BoundRect:__add(class)
-    class.Rect.__add(self, class)
-end]]
+function BoundRect:__add(aclass)
+    class.Rect.__add(self, aclass)
+end
 
 return BoundRect, function()
     BoundRect.cparents = {class.Rect}

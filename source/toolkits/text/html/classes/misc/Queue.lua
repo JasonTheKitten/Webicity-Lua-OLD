@@ -1,6 +1,6 @@
 local Queue = {}
-function Queue:__call(window, x, y, l, h)
-    self.table = {}
+function Queue:__call(init)
+    self.table = {init}
     
     return self
 end
@@ -11,6 +11,7 @@ function Queue:pop()
     return rtn
 end
 function Queue:push(item)
+	if not self.table then error("x", 2) end
     table.insert(self.table, item)
 end
 function Queue:peek()
