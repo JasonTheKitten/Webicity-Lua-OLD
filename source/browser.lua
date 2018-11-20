@@ -119,7 +119,7 @@ function Browser:getFile(name, env, merenv, ...)
     end
 end
 function Browser:CreateFrame(term, URL)
-    local frame = new(self.classes.Frame)(term)
+    local frame = new(self.classes.RootFrame)(term)
     local URLO = new(self.classes.URL)(URL)
     local req = {
         URL = URLO,

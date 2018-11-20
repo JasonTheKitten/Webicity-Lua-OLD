@@ -15,7 +15,7 @@ function ElementRect:__add(obj)
 	print("ADD")
     if obj:isA(class.Rect) then
         if (obj.window and obj.window~=self.window) then
-            return end
+            return self end
         if obj.pointer ~= self.pointer then
             return class.BoundRect.__add(self, obj) 
         end
@@ -24,10 +24,10 @@ function ElementRect:__add(obj)
             self.pointer.x = 0
         end
         self.pointer = self.pointer+obj
-        class.BoundRect.__add(self, obj)
+        return class.BoundRect.__add(self, obj)
     elseif obj:isA(class.Fluid) then
         self.pointer = self.pointer+obj
-        class.BoundRect.__add(self, obj)
+        return class.BoundRect.__add(self, obj)
     end
 end
 

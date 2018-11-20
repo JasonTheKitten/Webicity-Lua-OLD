@@ -7,7 +7,7 @@ function BoundRect:__call(window, x, y, l, h)
     return self
 end
 function BoundRect:__add(aclass)
-    class.Rect.__add(self, aclass)
+    return class.Rect.__add(self, aclass)
 end
 
 return BoundRect, function()

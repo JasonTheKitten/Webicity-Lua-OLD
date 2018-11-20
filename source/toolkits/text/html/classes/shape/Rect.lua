@@ -41,8 +41,6 @@ function Rect:__add(aclass)
     else
         error("Attempt to add incompatible aclass to Rect", 2)
     end
-    
-    return self
 end
 function Rect:willWrapOnAdd(aclass)
     if type(aclass) ~= "table" then return false end

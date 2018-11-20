@@ -22,6 +22,7 @@ function Element:calcSize(queue, stack)
     if self.parent then
 		self.container = new(class.ElementRect)(self.parent.container)
 		self.finalizeSize = true
+	    queue:push(self)
 	else
 		self.container = new(class.ElementRect)(nil, self.browserObject.request.page.window, nil, 0, 0)
     end
@@ -32,7 +33,6 @@ function Element:calcSize(queue, stack)
             self.window))
     end
 	
-	if self.parent then queue:push(self) end
     for i=#self.children, 1, -1 do
         queue:push(self.children[i])
     end

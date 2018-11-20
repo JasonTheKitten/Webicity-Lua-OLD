@@ -1,6 +1,6 @@
 local Fluid = {}
-function Fluid:__call(container, position)
-    self.length, self.height = 0, 0
+function Fluid:__call(container, position, l, h)
+    self.length, self.height = l or 0, h or 0
     self.container, self.position = container, position
     
     return self
@@ -16,8 +16,7 @@ function Fluid:flow(times)
         end
     end
     incPosY()
-    local i = 0
-    while i < times do --For loops make me uneasy
+    for i=0, times-1 do
         curPos.x = curPos.x+1
         self.length = self.length+1
         incPosY()
@@ -26,6 +25,10 @@ function Fluid:flow(times)
 end
 function Fluid:reset()
     self.length, self.height = 0, 0
+end
+function Fluid:__add()
+    --return new(Fluid)(self.container, self.position)
+    return self
 end
 
 return Fluid, function()
