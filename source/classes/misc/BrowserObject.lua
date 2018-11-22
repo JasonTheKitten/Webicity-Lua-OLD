@@ -7,7 +7,6 @@ function BrowserObject:__call(browser, req)
         self.response = protocolls[req.URL.protocoll]:submit(req)
     end
     local resp = self.response
-	for k, v in pairs(ctypes) do print(k) end
     if resp and ctypes[resp.type] then
         self.contentManager = new(ctypes[resp.type])(req.mode or "document", self)
 		req.page.window:redraw()

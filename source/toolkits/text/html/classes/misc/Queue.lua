@@ -11,8 +11,7 @@ function Queue:pop()
     return rtn
 end
 function Queue:push(item)
-	if not self.table then error("x", 2) end
-    table.insert(self.table, item)
+    table.insert(self.table, 1, item)
 end
 function Queue:peek()
     return self.table[1]

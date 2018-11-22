@@ -1,6 +1,7 @@
-local URL = "browser://welcome"
+local URL = "http://google.com/"
 
 local loc = fs.combine(shell.getRunningProgram(), "../../source")
+local l, h = term.getSize()
 
 if not fs.getBackgroundColor then _G._ENV = _G end
 local Browser, new = loadfile(
@@ -8,4 +9,4 @@ local Browser, new = loadfile(
 
 local browser = new(Browser)("Webicity", loc)
 local browserFrame = browser:CreateFrame(
-    new(browser.classes.RootFrame)(term), URL)
+    new(browser.classes.RootFrame)(term), URL, l)

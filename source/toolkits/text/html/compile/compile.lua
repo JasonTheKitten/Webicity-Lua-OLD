@@ -18,10 +18,11 @@ for i=1, #tEscList do escList[tEscList[i]] = true end
 local charstr = "abcdefghijklmnopqrstuvwxyz"
 local chars = {}
 for i=1, #charstr do
-    local c = charstr:sub(i)
+    local c = charstr:sub(i, i)
     chars[c] = true
     chars[c:upper()] = true
 end
+sleep(1)
 
 local function parse(str, bo, styling)
     
@@ -139,7 +140,6 @@ local function parse(str, bo, styling)
             elseif whitespace[char] then
             	str = string.sub(str, 2, #str)
             else
-                local char = string.sub(str, 1, 1)
                 str = string.sub(str, 2, #str)
                 if (curtree.tree[#curtree.tree] or {})[1] == "text" then
                     curtree.tree[#curtree.tree][2].element.value = curtree.tree[#curtree.tree][2].element.value..char
@@ -148,6 +148,7 @@ local function parse(str, bo, styling)
 						parent = curtree,
 						element = new(class.TextElement)(curtree.element, bo)
 					}})
+					curtree.tree[#curtree.tree][2].element.value = char
                 end
             end
         elseif mode == "doc" then

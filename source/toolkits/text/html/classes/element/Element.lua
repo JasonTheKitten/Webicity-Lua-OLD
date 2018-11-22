@@ -11,9 +11,11 @@ function Element:__call(parent, bo)
     
     return self
 end
+
 function Element:calcSize(queue, stack)
 	if self.finalizeSize then
 		self.parent.container = self.parent.container + self.container
+		--if self.container.length ~= 0 then print(self.container.length) end
 		self.finalizeSize = nil
 	
 		return
