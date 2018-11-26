@@ -9,7 +9,6 @@ function TextElement:__call(parent, bo)
 	return self
 end
 function TextElement:calcSize(queue, stack)
-	print(class.ElementRect:isA(stack:peek()))
     self.container(stack:peek(), stack:peek().pointer, nil, nil, self.browserObject)
     self.container:flow(#self.value)
 	

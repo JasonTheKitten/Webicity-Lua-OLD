@@ -1,13 +1,15 @@
 local BoundRect = {}
 function BoundRect:__call(window, x, y, l, h)
     class.Rect.__call(self, x, y, l, h)
-    
     self.window = window
-    
-    return self
+	
+	return self
 end
 function BoundRect:__add(aclass)
-    return class.Rect.__add(self, aclass)
+    local sum = Rect.__add(self, aclass)
+	sum.window = self.window
+	
+	return sum
 end
 
 return BoundRect, function()

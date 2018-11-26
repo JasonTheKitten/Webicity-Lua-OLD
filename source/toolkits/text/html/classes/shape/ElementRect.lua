@@ -1,34 +1,32 @@
 local ElementRect = {}
 
 function ElementRect:__call(parent, window, pointer, x, y, l, h)
-    local ppointer = (parent and parent.pointer) or {x=0, y=0}
-    x = x or ((not parent) and 0)
-    y = y or ((not parent) and 0)
-	local nx = x or ppointer.x
+	local ppointer = (parent and parent.pointer) or new(class.Pointer)(0,0)
+	self.pointer = new(class.Pointer)(x or ppointer.x or 0, y or ppointer.y or 0)
     class.BoundRect.__call(self, window or parent.window, 
-        x or ppointer.x, y or ppointer.y, 
+        self.pointer.x, self.pointer.y, 
         l or 0, h or 0)
-    self.pointer = pointer or new(class.Pointer)(0, 0)
-	
+
 	return self
 end
 function ElementRect:__add(obj)
-    if obj:isA(class.Rect) then
-        if (obj.window and obj.window~=self.window) then
-            return self end
-        if obj.pointer ~= self.pointer then
-            return class.BoundRect.__add(self, obj) 
-        end
-        if self:willWrapOnAdd(obj) then
-            self.pointer.y = self.pointer.y+1
-            self.pointer.x = 0
-        end
-        self.pointer = self.pointer+obj
-        return class.BoundRect.__add(self, obj)
-    elseif obj:isA(class.Fluid) then
-        self.pointer = self.pointer+obj
-        return class.BoundRect.__add(self, obj)
+	local sum = new(ElementRect)(
+		nil, self.window, nil,
+		self.x, self.y, self.length, self.height)
+    if (obj.window and obj.window~=self.window) then-- or (obj.pointer and obj.pointer ~= self.pointer) then
+        return sum end
+    if obj:isA(class.Rect) and self:willWrapOnAdd(obj) then
+        sum.pointer.y = sum.pointer.y+1
+        sum.pointer.x = 0
     end
+    sum.pointer = sum.pointer+obj
+	if sum.pointer.x > sum.length then
+		sum.length = sum.pointer.x
+	end
+	if sum.pointer.y > sum.height then
+		sum.height = sum.pointer.y
+	end
+    return sum
 end
 
 return ElementRect, function()

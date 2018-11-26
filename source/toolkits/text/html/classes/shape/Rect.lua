@@ -1,6 +1,6 @@
 local Rect = {}
 function Rect:__call(x, y, l, h)
-    if (type(x) == table) and x:isA(aclass.Pointer) then
+	if (type(x) == table) and x:isA(aclass.Pointer) then
         self.x, self.y, self.length, self.height =
             x.x, x.y, y, l
         
@@ -8,6 +8,10 @@ function Rect:__call(x, y, l, h)
     end
     self.x, self.y, self.length, self.height =
         x, y, l, h
+		
+	if type(self.x)~="number" then
+		error("", 3)
+	end
         
     return self
 end

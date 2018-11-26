@@ -31,6 +31,7 @@ function HTMLAPI:genDisplay()
 	while queue:peek() do
 		queue:pop():calcSize(queue, stack)
 	end
+	print(self.document.element.container.length)
 	while dqueue:peek() do
 		dqueue:pop():placeProposals(dqueue)
 	end

@@ -10,13 +10,15 @@ function Pointer:__call(x, y)
 end
 
 function Pointer:__add(obj)
+	local sum = new(Pointer)(self.x, self.y)
     if obj:isA(class.Rect) then
-        self.x = self.x + obj.length
-        self.y = self.y + obj.height-1
+        sum.x = sum.x + obj.length
+        sum.y = sum.y + obj.height-1
     elseif obj:isA(class.Fluid) then
-        self.x = obj.length
-        self.y = self.y + obj.height
+        sum.x = obj.length
+        sum.y = sum.y + obj.height
     end
+	return sum
 end
 
 function Pointer:__eq(obj)
