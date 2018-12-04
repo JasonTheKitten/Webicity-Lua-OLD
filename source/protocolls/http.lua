@@ -12,7 +12,7 @@ function HTTPP:submit(req)
     local URL = req.URL.fURL
     local res = {
         URL = URL,
-        protocoll = req.URL.protocoll
+        protocol = req.URL.protocol
     }
     if http and http.checkURL(URL) then
         local handle
@@ -39,7 +39,7 @@ function HTTPP:submit(req)
         "browser://snr/?"..
             "rc="..tostring(req.responseCode or "")..
             "url="..URL)
-    return protocoll.browser(req)
+    return protocol.browser(req)
 end
 
 return HTTPP, function()

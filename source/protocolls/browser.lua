@@ -4,7 +4,7 @@ function BrowserP:submit(req)
     local URL = req.URL.fURL
     local res = {
         URL = URL,
-        protocoll = req.URL.protocoll,
+        protocol = req.URL.protocol,
         headers = {},
         type = req.defType or "text/html" --By default
     }

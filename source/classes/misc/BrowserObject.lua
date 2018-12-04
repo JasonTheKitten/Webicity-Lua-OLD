@@ -3,8 +3,8 @@ function BrowserObject:__call(browser, req)
     self.request = req
 	self.browser = browser
     req.browser = browser
-    if protocolls[req.URL.protocoll] then
-        self.response = protocolls[req.URL.protocoll]:submit(req)
+    if protocols[req.URL.protocol] then
+        self.response = protocols[req.URL.protocol]:submit(req)
     end
     local resp = self.response
     if resp and ctypes[resp.type] then

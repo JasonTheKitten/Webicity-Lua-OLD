@@ -23,7 +23,7 @@ function URL:__call(loc)
     if #parts == 1 then 
         table.insert(parts, 1, "http")
     end
-    self.protocoll = parts[1]
+    self.protocol = parts[1]
     self.address = parts[2]
     self.port = parts[3]
     self.path = ext

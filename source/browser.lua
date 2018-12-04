@@ -25,11 +25,11 @@ function Browser:__call(name, location)
     self.name = name
     self.location = location
     self.classes = {}
-	self.protocolls = {}
+	self.protocols = {}
 	self.ctypes = {}
 	self.env = {
 		class = self.classes,
-		protocolls = self.protocolls,
+		protocols = self.protocols,
 		ctypes = self.ctypes,
 		new = new
 	}
@@ -37,8 +37,8 @@ function Browser:__call(name, location)
         fs.combine(self.location, "classes"),
         self.classes, self.env)
 	self:loadClassFolder(
-        fs.combine(self.location, "protocolls"),
-        self.protocolls, self.env, "protocolls")
+        fs.combine(self.location, "protocols"),
+        self.protocols, self.env, "protocols")
 	self:loadClassFolder(
 		fs.combine(self.location, "toolkitAPIs"),
         self.ctypes, self.env, "ctypes", true)

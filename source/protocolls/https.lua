@@ -1,3 +1,3 @@
 --[[browser.regiProto("https", function(dat)
-    return browser.protocolls["http"](dat)
+    return browser.protocols["http"](dat)
 end)]]
