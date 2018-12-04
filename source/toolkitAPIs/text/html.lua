@@ -27,7 +27,9 @@ function HTMLAPI:genDisplay()
 		new(self.classes.Queue)(self.document.element), 
 		new(self.classes.Queue)(self.document.element),
 		new(self.classes.Queue)(
-			new(self.classes.ElementRect)(nil, self.browserObject.request.page.window))
+			new(self.classes.Rect)(0, 0, 0, 0, 
+				new(self.classes.Pointer)(0, 0), 
+				self.browserObject.request.page.window))
 	while queue:peek() do
 		queue:pop():calcSize(queue, stack)
 	end

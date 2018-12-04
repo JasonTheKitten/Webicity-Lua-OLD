@@ -22,10 +22,8 @@ for i=1, #charstr do
     chars[c] = true
     chars[c:upper()] = true
 end
-sleep(1)
 
 local function parse(str, bo, styling)
-    
     styling = styling or {}
     
     local function parseStr(echar)
@@ -133,16 +131,18 @@ local function parse(str, bo, styling)
             elseif char == "<" then
                 mode = "tagname"
                 str = string.sub(str, 2, #str)
-            elseif schar == "#" then
+            --[[elseif schar == "#" then
                 str = string.sub(str, 2, #str)
             elseif char == "&" then
-            	str = string.sub(str, 2, #str)
-            elseif whitespace[char] then
-            	str = string.sub(str, 2, #str)
+            	str = string.sub(str, 2, #str)]]
             else
                 str = string.sub(str, 2, #str)
                 if (curtree.tree[#curtree.tree] or {})[1] == "text" then
-                    curtree.tree[#curtree.tree][2].element.value = curtree.tree[#curtree.tree][2].element.value..char
+                    local str2 = curtree.tree[#curtree.tree][2].element.value
+                    if string.sub(str2, #str2)~=" " then
+                        curtree.tree[#curtree.tree][2].element.value = 
+                            str2..char
+                    end
                 else
                     table.insert(curtree.tree, {"text", {
 						parent = curtree,
