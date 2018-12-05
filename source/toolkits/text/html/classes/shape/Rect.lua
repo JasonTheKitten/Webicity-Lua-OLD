@@ -34,14 +34,14 @@ function Rect:__call(...)
 end
 function Rect:__add(aclass)
 	error("", 2)
-	return self:copy()+aclass
+	return self:copy():add(aclass)
 end
 function Rect:add(aclass)
     if type(aclass) ~= "table" then
         error("Attempt to add non-class to Rect", 2)
     end
     if aclass:isA(Rect) then
-        if aclass.window then return end
+        if aclass.window then return self end
         if self:willWrapOnAdd(aclass) then
             if self.pointer then
                 self.pointer.x = self.x
@@ -60,6 +60,7 @@ function Rect:add(aclass)
 		self.pointer = self.pointer+aclass
 		self.length = ((self.length > aclass.length) and self.length) or aclass.length
 		self.height = self.height + aclass.height
+		return self
     else
         error("Attempt to add incompatible class to Rect", 2)
     end

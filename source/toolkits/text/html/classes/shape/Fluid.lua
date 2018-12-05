@@ -3,6 +3,8 @@ function Fluid:__call(container, bo, position, l, h)
     self.length, self.height = l or 0, h or 0
     self.container, self.pointer = container, new(class.Pointer)(position or container.pointer)
 	self.browserObject = bo
+	
+	if not bo then error("", 2) end
     
     return self
 end
