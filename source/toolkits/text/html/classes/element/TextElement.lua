@@ -9,13 +9,14 @@ function TextElement:__call(parent, bo)
 	return self
 end
 function TextElement:calcSize(queue, stack)
-    self.container(stack:peek(), stack:peek().pointer, nil, nil, self.browserObject)
+    self.container(stack:peek(), self.browserObject)
+	self.position = self.container.pointer
     self.container:flow(#self.value)
 	
-	self.parent.container = self.parent.container + self.container
+	self.parent.container:add(self.container)
 end
 function TextElement:placeProposals(queue)
-    
+    print(self.position.x, ",", self.position.y, ":", self.value)
 end
 function TextElement:addChild(child) end
 

@@ -74,6 +74,7 @@ function Browser:loadClassFolder(loc, tbl, env2, id, presN)
                 table.insert(queue, fs.combine(n, v))
             end
         else
+			--print(queue[1])
             local cls, lH =
                 loadfile(queue[1], env)()
 			local v = fs.getName(queue[1])

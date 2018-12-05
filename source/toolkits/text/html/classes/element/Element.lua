@@ -12,19 +12,20 @@ function Element:__call(parent, bo)
     return self
 end
 
-function Element:calcSize(queue, stack)
+function Element:calcSize(queue, stack, cont)
 	if self.finalizeSize then
-		self.parent.container = self.parent.container + self.container
+		self.parent.container:add(self.container)
 		self.finalizeSize = nil
 	
 		return
 	end
-	if self.parent then
+    
+    self.container = stack:peek()
+	self.position = self.container.pointer
+	if self.parent and (self.container~=self.parent.container) then
 		self.finalizeSize = true
 	    queue:push(self)
     end
-    
-    self.container = stack:peek()
 	
     for i=#self.children, 1, -1 do
         queue:push(self.children[i])

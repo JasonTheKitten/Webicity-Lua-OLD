@@ -1,26 +1,25 @@
 local Fluid = {}
-function Fluid:__call(container, position, l, h, bo)
+function Fluid:__call(container, bo, position, l, h)
     self.length, self.height = l or 0, h or 0
-    self.container, self.position = container, position
+    self.container, self.pointer = container, new(class.Pointer)(position or container.pointer)
 	self.browserObject = bo
     
     return self
 end
 function Fluid:flow(times)
-	local curPos = new(class.Pointer)(self.position)
+	self.length, self.height = self.pointer.x, 0
     local function incPosY()
-        if curPos.x>self.browserObject.request.page.rl then
-            curPos.x, curPos.y = self.container.x, curPos.y+1
-            self.length, self.height = 0, self.height+1
+        if self.length>self.browserObject.request.page.rl then
+            self.length, self.height = self.container.x, self.height+1
         end
     end
     incPosY()
     for i=0, times-1 do
-        curPos.x = curPos.x+1
         self.length = self.length+1
         incPosY() 
         i = i+1
     end
+	self.pointer.x, self.pointer.y = self.length, self.pointer.y+self.height
 end
 function Fluid:reset()
     self.length, self.height = 0, 0
