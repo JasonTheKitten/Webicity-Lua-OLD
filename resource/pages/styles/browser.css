@@ -1,0 +1,28 @@
+
+/**
+ * Default browser styles.
+ * @author Richard "ihack2712" Sandberg <ihack@theteamcoders.com>
+ */
+
+ a
+ {
+	 display: inline;
+	 color: blue;
+	 text-decoration: underline;
+ }
+ 
+ img
+ {
+	 display: inline-block;
+	 width: auto;
+	 height: auto;
+	 background-color: inherit;
+	 background-image: auto;
+ }
+ 
+ script
+ {
+	 display: none;
+ }
+ 
+ 
