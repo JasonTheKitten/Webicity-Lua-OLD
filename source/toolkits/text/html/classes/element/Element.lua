@@ -12,19 +12,43 @@ function Element:__call(parent, bo)
     return self
 end
 
-function Element:calcSize(queue, stack)
+<<<<<<< HEAD
+function Element:setTag(t)
+    self.tag = t
+end
+function Element:getShared(name)
+	local el = self
+	while el do
+		if el.shared and el.shared[name] then
+			return el.shared[name]
+		end
+		el = el.parent
+	end
+end
+function Element:calcSize(queue, stack, globals)
+=======
+function Element:calcSize(queue, stack, cont)
+>>>>>>> 5e31b6e3e8c69ea390214d1d6c76189af8e4946d
 	if self.finalizeSize then
-		self.parent.container = self.parent.container + self.container
+		self.parent.container:add(self.container)
 		self.finalizeSize = nil
 	
 		return
 	end
-	if self.parent then
+<<<<<<< HEAD
+	
+	if not self.parent then
+		self.shared = {}
+	end
+=======
+>>>>>>> 5e31b6e3e8c69ea390214d1d6c76189af8e4946d
+    
+    self.container = stack:peek()
+	self.position = self.container.pointer
+	if self.parent and (self.container~=self.parent.container) then
 		self.finalizeSize = true
 	    queue:push(self)
     end
-    
-    self.container = stack:peek()
 	
     for i=#self.children, 1, -1 do
         queue:push(self.children[i])

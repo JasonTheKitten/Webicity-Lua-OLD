@@ -51,9 +51,9 @@ function Browser:__call(name, location)
     
     return self
 end
-function Browser:loadClassFolder(loc, tbl, env2, id, presN)
+function Browser:loadClassFolder(loc, tbl, env2, id, presN, ienv)
 	id = id or "class"
-    local env = {}
+    local env = ienv or {}
     for k, v in pairs(_G) do env[k] = v end
     env._G = env
     env._ENV = env
@@ -74,6 +74,11 @@ function Browser:loadClassFolder(loc, tbl, env2, id, presN)
                 table.insert(queue, fs.combine(n, v))
             end
         else
+<<<<<<< HEAD
+			--print(queue[1])
+=======
+			print(queue[1])
+>>>>>>> 5e31b6e3e8c69ea390214d1d6c76189af8e4946d
             local cls, lH =
                 loadfile(queue[1], env)()
 			local v = fs.getName(queue[1])
@@ -118,14 +123,16 @@ function Browser:getFile(name, env, merenv, ...)
         return file
     end
 end
-function Browser:CreateFrame(term, URL, l)
-    local frame = new(self.classes.Frame)(term)
+function Browser:CreateFrame(term, URL, l, h)
+    local ft = self.classes[(term.showPix and "Frame") or "RootFrame"]
+    local frame = new(self.classes.RootFrame)(term, 1, 1, l, h)
     local URLO = new(self.classes.URL)(URL)
     local req = {
         URL = URLO,
         page = {
             window = frame,
-			rl = l
+			rl = l,
+			rh = h
         }
     }
     

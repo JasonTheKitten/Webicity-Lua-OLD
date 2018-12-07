@@ -15,14 +15,4 @@ function BrowserP:submit(req)
     return res
 end
 
---[[browser:regiProto("about", function(data)
-    if data.url == "blank" then
-        data.content = ""
-        data.type = "text/html"
-    else
-        data.proto = browser.name
-    end
-    return data
-end)]]
-
 return BrowserP
