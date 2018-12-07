@@ -79,6 +79,7 @@ local function parse(str, bo, styling)
             parent = p,
 			element = new(elements[n] or class.Element)(p and p.element, bo)
         }
+        t.element:setTag(t)
         
         if p then 
 			table.insert(p.tree, {"tag", t})

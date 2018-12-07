@@ -1,14 +1,15 @@
 local TextElement = {}
 function TextElement:__call(parent, bo)
-    class.Element.__call(self, parent)
+    class.Element.__call(self, parent, bo)
     
     self.value = ""
     self.container = new(class.Fluid)
-	self.browserObject = bo
 	
 	return self
 end
-function TextElement:calcSize(queue, stack)
+
+function TextElement:setTag(t) end--Override for speed
+function TextElement:calcSize(queue, stack, globals)
 	self.pcont = stack:peek()
     self.container(self.pcont, self.browserObject)
 	self.pointer = new(class.Pointer)(self.container.pointer)
@@ -18,12 +19,15 @@ function TextElement:calcSize(queue, stack)
 end
 function TextElement:placeProposals(queue)
 	local window = self.pcont.window
-	local tFlow = new(class.Fluid)(self.pcont, self.browserObject)
+	local tFlow = new(class.Fluid)(self.pcont, self.browserObject, self.pointer)
 	for i=1, #self.value do
 		tFlow:flow(1)
 		window:proposeTextHandler(
-			fluid.length, fluid.height+self.pointer.y, 
+			tFlow.length, tFlow.height+self.pointer.y, 
 			string.sub(self.value, i, i))
+		window:proposeFGHandler(
+			tFlow.length, tFlow.height+self.pointer.y, 
+			self:getShared("textColor") or colors.black)
 	end
 end
 function TextElement:addChild(child) end

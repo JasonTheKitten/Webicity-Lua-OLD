@@ -9,4 +9,4 @@ local Browser, new = loadfile(
 
 local browser = new(Browser)("Webicity", loc)
 local browserFrame = browser:CreateFrame(
-    new(browser.classes.RootFrame)(term), URL, l)
+    term, URL, l, h)

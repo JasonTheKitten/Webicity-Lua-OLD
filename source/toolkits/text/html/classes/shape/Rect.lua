@@ -50,14 +50,14 @@ function Rect:add(aclass)
             self.height = self.height+1
         end
         if self.pointer then
-            self.pointer = self.pointer+aclass
+            self.pointer:add(aclass)
         end
         if aclass.length>self.length then
             self.length = aclass.length
         end
         self.height = self.height+aclass.height
     elseif aclass:isA(class.Fluid) then
-		self.pointer = self.pointer+aclass
+		self.pointer:add(aclass)
 		self.length = ((self.length > aclass.length) and self.length) or aclass.length
 		self.height = self.height + aclass.height
 		return self

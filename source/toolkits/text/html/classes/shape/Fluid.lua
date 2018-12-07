@@ -1,7 +1,7 @@
 local Fluid = {}
 function Fluid:__call(container, bo, position, l, h)
-    self.length, self.height = l or 0, h or 0
     self.container, self.pointer = container, new(class.Pointer)(position or container.pointer)
+	self.length, self.height = l or self.pointer.x, h or 0
 	self.browserObject = bo
 	
 	if not bo then error("", 2) end
@@ -9,7 +9,6 @@ function Fluid:__call(container, bo, position, l, h)
     return self
 end
 function Fluid:flow(times)
-	self.length, self.height = self.pointer.x, 0
     local function incPosY()
         if self.length>self.browserObject.request.page.rl then
             self.length, self.height = self.container.x, self.height+1

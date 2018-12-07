@@ -12,12 +12,28 @@ function Element:__call(parent, bo)
     return self
 end
 
-function Element:calcSize(queue, stack, cont)
+function Element:setTag(t)
+    self.tag = t
+end
+function Element:getShared(name)
+	local el = self
+	while el do
+		if el.shared and el.shared[name] then
+			return el.shared[name]
+		end
+		el = el.parent
+	end
+end
+function Element:calcSize(queue, stack, globals)
 	if self.finalizeSize then
 		self.parent.container:add(self.container)
 		self.finalizeSize = nil
 	
 		return
+	end
+	
+	if not self.parent then
+		self.shared = {}
 	end
     
     self.container = stack:peek()
