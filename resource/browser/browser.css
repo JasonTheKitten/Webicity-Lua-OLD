@@ -20,6 +20,54 @@ img
 	background-image: auto;
 }
 
+img::alt
+{
+	display: inline-block;
+	width: auto;
+	height: auto;
+	color: inherit;
+	background-color: inherit;
+	text-decoration: inherit;
+	font-style: inherit;
+	font-weight: inherit;
+}
+
+b, strong
+{
+	display: inline-block;
+	width: auto;
+	height: auto;
+	color: inherit;
+	background-color: inherit;
+	text-decoration: inherit;
+	font-style: inherit;
+	font-weight: bold;
+}
+
+i, em
+{
+	display: inline-block;
+	width: auto;
+	height: auto;
+	color: inherit;
+	background-color: inherit;
+	text-decoration: inherit;
+	font-style: italic;
+	font-weight: inherit;
+}
+
+u
+{
+	display: inline-block;
+	width: auto;
+	height: auto;
+	color: inherit;
+	background-color: inherit;
+	text-decoration: underline;
+	font-style: italic;
+	font-weight: inherit;
+}
+
 script
 {
 	display: none;
