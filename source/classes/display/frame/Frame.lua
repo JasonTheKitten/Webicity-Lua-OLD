@@ -18,16 +18,27 @@ function Frame:showPix(x, y, txt, bg, fg)
     self.parent:draw(tx+self.x-1, ty+self.y-1, txt, bg, fg)
 end
 function Frame:redraw()
+	self:clearFrame()
 	for y, row in pairs(self.buffer) do
 		for x, column in pairs(row) do
 			local txt, bg, fg = 
 				(type(column.text) == "function" and column.text()) 
 					or column.text or " ",
 				(type(column.background) == "function" and column.background()) 
-					or column.background or colors.white,
+					or column.background, --or colors.white,
 				(type(column.foreground) == "function" and column.foreground()) 
-					or column.foreground or colors.black
+					or column.foreground --or colors.black
 			self:showPix(x, y, txt, bg, fg)
+		end
+	end
+end
+function Frame:clearBuff()
+	self.buffer = {}
+end
+function Frame:clearFrame()
+	for x=1, self.l do --Too slow, fix
+		for y=1, self.h do
+			self:showPix(x, y, " ")
 		end
 	end
 end
@@ -65,8 +76,10 @@ function Frame:proposeTextHandler(x, y, func)
     self:genBufferPos(x, y)
     self.buffer[y][x].text = func
 end
-function Frame:click(x, y)
-    
+function Frame:onClick(x, y)
+    if self.buffer[y] and self.buffer[y][x] and self.buffer[y][x].onclick then
+		self.buffer[y][x].onclick(x, y)
+	end
 end
 
 return Frame, function()

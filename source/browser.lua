@@ -119,17 +119,17 @@ function Browser:getFile(name, env, merenv, ...)
         return file
     end
 end
-function Browser:CreateFrame(term, URL, l, h)
+function Browser:CreateFrame(term, URL, l, h, handlers)
     local ft = self.classes[(term.showPix and "Frame") or "RootFrame"]
     local frame = new(self.classes.RootFrame)(term, 1, 1, l, h)
     local URLO = new(self.classes.URL)(URL)
     local req = {
         URL = URLO,
+		oURL = URL,
         page = {
-            window = frame,
-			rl = l,
-			rh = h
-        }
+            window = frame, rl = l, rh = h
+        },
+		handlers = handlers
     }
     
     return new(self.classes.BrowserObject)(self, req)

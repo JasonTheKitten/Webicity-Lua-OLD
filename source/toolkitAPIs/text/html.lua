@@ -43,8 +43,12 @@ function HTMLAPI:genDisplay()
 	self.browserObject.request.page.window:redraw()
 end
 
-function HTMLAPI:resume()
-
+function HTMLAPI:resume(event)
+	if event[1] == "mouse_click" then
+		if event[2] == 1 then
+			self.browserObject.request.page.window:onClick(event[3], event[4])
+		end
+	end
 end
 
 return HTMLAPI, function()

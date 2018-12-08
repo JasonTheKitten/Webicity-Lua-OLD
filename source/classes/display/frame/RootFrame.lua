@@ -20,6 +20,15 @@ function RootFrame:showPix(x, y, txt, bg, fg)
         self.colorizer:getColor(fg, false))
     self.parent.write(txt or "")
 end
+function RootFrame:clearFrame()
+	self.parent.setBackgroundColor(
+		self.colorizer:getColor(nil, false))
+	local txt = string.rep(" ", self.l)
+	for y=1, self.h do
+		term.setCursorPos(self.x, self.y+y-1)
+		term.write(txt)
+	end
+end
 
 return RootFrame, function()
     RootFrame.cparents = {class.Frame}

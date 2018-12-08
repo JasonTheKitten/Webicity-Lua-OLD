@@ -39,9 +39,9 @@ function HTTPP:submit(req)
         "browser://snr/?"..
             "rc="..tostring(req.responseCode or "")..
             "url="..URL)
-    return protocol.browser(req)
+    return protocols.browser:submit(req)
 end
 
 return HTTPP, function()
-    HTTPP.cparents = {class.Protocoll}
+    HTTPP.cparents = {class.Protocol}
 end

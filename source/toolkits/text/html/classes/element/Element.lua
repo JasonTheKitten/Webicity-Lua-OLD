@@ -1,11 +1,11 @@
 local Element = {}
-function Element:__call(parent, bo)
+function Element:__call(parent, bo, skipAddC)
 	self.children = {}
 	self.browserObject = bo
     --[[self.attributeContainer = 
         new(class.AttributesContainer)(parent.AttributesContainer)]]
     if parent then
-        parent:addChild(self)
+        if not skipAddC then parent:addChild(self) end
         self.parent = parent
 	end
     
@@ -51,6 +51,14 @@ function Element:placeProposals(queue)
     for i=#self.children, 1, -1 do
         queue:push(self.children[i])
     end
+end
+function Element:handleClick(x, y)
+	if self.onClick then
+		self:onClick(x, y)
+	end
+	if self.parent and self.parent.handleClick then
+		self.parent:handleClick(x, y)
+	end
 end
 function Element:addChild(child)
     table.insert(self.children, child)

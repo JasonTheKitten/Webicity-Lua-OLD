@@ -140,7 +140,7 @@ local function parse(str, bo, styling)
                 str = string.sub(str, 2, #str)
                 if (curtree.tree[#curtree.tree] or {})[1] == "text" then
                     local str2 = curtree.tree[#curtree.tree][2].element.value
-                    if string.sub(str2, #str2)~=" " then
+                    if not (whitespace[string.sub(str2, #str2, #str2)] and whitespace[char]) then
                         curtree.tree[#curtree.tree][2].element.value = 
                             str2..char
                     end

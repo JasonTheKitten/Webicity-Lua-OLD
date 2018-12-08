@@ -10,7 +10,18 @@ function BrowserP:submit(req)
     }
     
     --req.browser:getResource
-    res.content = "test"
+    res.content = [[<!DOCTYPE html>
+<html>
+	<head>
+		<title>Test</title>
+	</head>
+	<body>
+		This is a test page. Click <a href="browser://success">here</a> to test.
+	</body>
+</html>
+	]]
+	
+	if req.URL.address == "success" then res.content = "Success!" end
     
     return res
 end
