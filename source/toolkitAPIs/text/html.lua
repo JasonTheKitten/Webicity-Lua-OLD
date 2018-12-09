@@ -13,9 +13,17 @@ function HTMLAPI:__call(mode, bo)
 	bo.browser:loadClassFolder(
         fs.combine(bo.browser.location, "toolkits/text/html/elements"),
         els.elements, nil, "elements", nil, {eclass = self.classes})
-	self.compiler = bo.browser:getFile("toolkits/text/html/compile/compile.lua", true, els, self.classes, class)()
+	local _, e = bo.browser:getFile("toolkits/text/html/parse/parse.lua", true)
+	print(e)
+	self.parser = 
+		new(bo.browser:getFile("toolkits/text/html/parse/parse.lua", true, els, self.classes, class)()
+			)(bo.response.content, bo) --Ambig snyx ):
 	
-	self.document = self.compiler.parse(bo.response.content, bo)
+	while not self.parser:isDone() do
+		os.queueEvent("")
+		os.pullEvent()
+		self.parser:continue()
+	end
 	
 	self:genDisplay()
 

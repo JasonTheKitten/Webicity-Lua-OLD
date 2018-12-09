@@ -75,8 +75,9 @@ function Browser:loadClassFolder(loc, tbl, env2, id, presN, ienv)
             end
         else
 			--print(queue[1])
-            local cls, lH =
-                loadfile(queue[1], env)()
+            local cls, lH = loadfile(queue[1], env)
+			if not cls then error(lH, -1) end
+			cls, lH = cls()
 			local v = fs.getName(queue[1])
 			if presN then
 				v = string.sub(queue[1], #loc+2)

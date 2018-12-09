@@ -10,12 +10,12 @@ function AElement:__call(parent, bo)
 end
 
 function AElement:calcSize(queue, stack)
-	if not (self.finalizeSize or self:getShared("underline"))  then
+	if not (self:getShared("underline", true) or self.finalizeSize) then
 		queue:push(self.textC2)
 	end
-	self.parent.calcSize(self, queue, stack)
-	if self.finalizeSize then return end
-	if not self:getShared("underline") then
+	eclass.Element.calcSize(self, queue, stack)
+	--if not self.finalizeSize then return end
+	if not self:getShared("underline", true) then
 		queue:push(self.textC1)
 	end
 	self.shared = {
@@ -24,8 +24,12 @@ function AElement:calcSize(queue, stack)
 	}
 end
 function AElement:placeProposals(queue)
-	self.textC1:placeProposals(queue)
-	self.textC2:placeProposals(queue)
+	if not self:getShared("underline", true) then
+		print("A")
+		self.textC1:placeProposals(queue)
+		print("B")
+		self.textC2:placeProposals(queue)
+	end
 	eclass.Element.placeProposals(self, queue)
 end
 function AElement:handleClick(x, y)

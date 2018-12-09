@@ -15,12 +15,13 @@ end
 function Element:setTag(t)
     self.tag = t
 end
-function Element:getShared(name)
-	local el = self
+function Element:getShared(name, par)
+	local el = (par and self.parent) or self
 	while el do
 		if el.shared and el.shared[name] then
 			return el.shared[name]
 		end
+		if el == el.parent then return end
 		el = el.parent
 	end
 end
