@@ -22,7 +22,7 @@ function HTTPP:submit(req)
             handle = http.get(URL, req.headers)
         end
         if handle then
-            res.content handle:readAll() --TODO: just pass the buffer
+            res.content = handle:readAll() --TODO: just pass the buffer
             res.headers = (handle.getResponseHeaders and handle:getResponseHeaders()) or {}
             res.responseCode = handle:getResponseCode()
             res.type = res.headers["Content-Type"] or req.defType or "text/html"

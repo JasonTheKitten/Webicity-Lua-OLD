@@ -96,9 +96,9 @@ function HTMLP:continue()
 		end
 	elseif self.mode == "tagstart" then
 		self.tmp = self.tmp or {}
-		for i=1, loop do
+		for i=1, self.loops do
 			local char = self.buffer:peek()
-			if not self.chars[char] and ((not (whitespace[char] or char=="/")) or self.tmp.name) then
+			if not self.chars[char] and ((not (self.whitespace[char] or char=="/")) or self.tmp.name) then
 				self.mode = "tagattrs"
 				break
 			end
@@ -112,7 +112,7 @@ function HTMLP:continue()
         end
 	elseif self.mode == "tagattrs" then
 		self.tmp.attrs = {}
-        for i=1, loop do
+        for i=1, self.loops do
 			local char = self.buffer:eat()
 			if char==">" then
 				if self.tmp.sc or not self.tmp.closing then
@@ -137,7 +137,7 @@ function HTMLP:continue()
 		end
 	elseif self.mode == "escaped" then
 		self.tmp = self.tmp or ""
-		for i=1, loop do
+		for i=1, self.loops do
 			if self:isDone() or (self.buffer:peek(2+#esc) == ("</"..esc)) then
 				self.tmp = nil
 				self.mode = "default"
