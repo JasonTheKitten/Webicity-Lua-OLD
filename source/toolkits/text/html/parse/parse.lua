@@ -1,4 +1,4 @@
-local HTMLP, Buffer = {cparents = {class.Class}}, {cparents = {class.Class}}
+local HTMLP = {cparents = {class.Class}}
 
 --SETUP HTMLP
 do
@@ -7,6 +7,13 @@ do
 	for i=1, #whitespace do
 		HTMLP.whitespace[string.sub(whitespace, i, i)] = true
 	end
+	
+	local strstart = "\"'`"
+	HTMLP.strstart = {}
+	for i=1, #whitespace do
+		HTMLP.whitespace[string.sub(whitespace, i, i)] = true
+	end
+
 
 	local tSct = {"br", "meta", "input"}
 	HTMLP.sct = {}
@@ -30,9 +37,11 @@ HTMLP.loops = 50
 function HTMLP:__call(data, browserObject)
 	self.mainTag = self:createTag(nil, nil, 
 		{doctype = "html", docinfo = {}})
-	self.buffer = new(Buffer)(data)
+	self.buffer = new(class.Buffer)(data)
 	self.curTag = self.mainTag
-	self.mode, submode = "default", nil
+	self.mode = "default"
+	self.stack = {}
+	self.browserObject = browserObject
 	self.tmp = nil
 	
 	return self
@@ -42,9 +51,9 @@ function HTMLP:continue()
 	if self:isDone() then return end
 	if self.mode == "default" then
 		local char = self.buffer:peek()
-		if (self.buffer:peek(10):lower() == "<!doctype") 
-			and self.whitespace[self.buffer:peek(11,11)] then
-			self.buffer:eat(11)
+		if (self.buffer:peek(9):lower() == "<!doctype") 
+			and self.whitespace[self.buffer:peek(10,10)] then
+			self.buffer:eat(10)
 			self.mainTag.info.doctype = ""
 			self.mode = "doctype"
 		elseif self.buffer:peek(4)=="<!--" then
@@ -64,7 +73,7 @@ function HTMLP:continue()
 			else
 				table.insert(self.curTag.tree, {"text", {
 					parent = self.curTag,
-					element = new(class.TextElement)(self.curTag.element, bo)
+					element = new(class.TextElement)(self.curTag.element, self.browserObject)
 				}})
 				self.curTag.tree[#self.curTag.tree][2].element.value = char
 			end
@@ -73,7 +82,7 @@ function HTMLP:continue()
 		local char
 		for i=1, self.loops do
 			char = self.buffer:peek()
-			if self:isDone() or whitespace[char] or char == ">" then 
+			if self:isDone() or self.whitespace[char] or char == ">" then 
 				self.mode = "docinfo"
 				break 
 			end
@@ -104,9 +113,8 @@ function HTMLP:continue()
 			end
 			self.buffer:eat()
 			if char == "/" then 
-				self.tmp.sc = true
 				self.tmp.closing = true
-			elseif not whitespace[char] then
+			elseif not self.whitespace[char] then
 				self.tmp.name = (self.tmp.name or "")..char
 			end
         end
@@ -115,16 +123,31 @@ function HTMLP:continue()
         for i=1, self.loops do
 			local char = self.buffer:eat()
 			if char==">" then
+				self.mode = "default"
 				if self.tmp.sc or not self.tmp.closing then
 					self.curTag = self:createTag(self.tmp.name, self.curTag)
 					self.curTag.attrs = self.tmp.attrs
 				end
 				if self.tmp.closing then
 					self:unwindTo(self.tmp.name)
+				elseif self.escList[self.tmp.name] then
+					self.mode = "escaped"
+					self.esc = self.tmp.name
 				end
 				self.tmp = nil
-				self.mode = "default"
 				break
+			elseif self.whitespace[char] then
+				if self.tmp.attr then
+					self.curTag.attrs[self.tmp.attr] = true
+					self.tmp.attr = nil
+				end
+			elseif char == "/" then
+				self.tmp.sc = self.tmp.sc or not self.tmp.closing
+				self.tmp.closing = true
+			elseif char == "=" and self.tmp.attr then
+				self.mode = "value"
+			else
+				self.tmp.attr = (self.tmp.attr or "")..char
 			end
 		end
 	elseif self.mode == "comment" then
@@ -138,12 +161,35 @@ function HTMLP:continue()
 	elseif self.mode == "escaped" then
 		self.tmp = self.tmp or ""
 		for i=1, self.loops do
-			if self:isDone() or (self.buffer:peek(2+#esc) == ("</"..esc)) then
+			if self:isDone() or (self.buffer:peek(2+#self.esc) == ("</"..self.esc)) then
+				self.curTag.value = self.tmp
 				self.tmp = nil
 				self.mode = "default"
+				self.esc = nil
 				break 
 			end
 			self.tmp = self.tmp..self.buffer:eat()
+		end
+	elseif self.mode == "value" then
+		for i=1, self.loops do
+			local char = self.buffer:peek()
+			if not self.echar then
+				if self.strstart[char] then
+					self.echar = char
+				else
+					self.mode = "tagattrs"
+					self.tmp.attr = nil
+					break
+				end
+			end
+			self.buffer:eat()
+			if char == self.echar then
+				self.mode = "tagattrs"
+				self.echar = nil
+				self.curTag.attrs[self.tmp.attr] = self.tmp.attrv
+				break
+			end
+			self.tmp.attrv = (self.tmp.attr or "")..char
 		end
 	end
 end
@@ -162,51 +208,31 @@ function HTMLP:createTag(tagtype, parent, info)
 	if parent then 
 		table.insert(parent.tree, {"tag", t})
 	end
-    if tagtype then table.insert(stack, tagtype) end
+    if tagtype then table.insert(self.stack, tagtype) end
 	
 	return tag
 end
 
-function HTMLP:isDone()
-	return self.buffer:isDone()
+function HTMLP:unwindTo(tag)
+	local pos
+	for i=#self.stack, 1, -1 do
+		if self.stack[i] == tag then
+			pos = i
+		end
+	end
+	if pos then
+		while self.curTag.type ~= tag do
+			self.curTag = self.curTag.parent
+		end
+		self.curTag = self.curTag.parent
+		while self.stack[pos] do
+			table.remove(self.stack, pos)
+		end
+	end
 end
 
---BUFFER
-function Buffer:__call(arg)
-	if type(arg) == "table" then
-		self.buffer = ""
-		self.handle = arg
-		self.done = false
-	else
-		self.buffer = arg
-	end
-	
-	return self
-end
-function Buffer:isDone()
-	if not self.handle then 
-		return self.buffer == "" end
-	return self.done
-end
-function Buffer:eat(n)
-	n = n or 1
-	local str = ""
-	if self.handle then
-		return
-	end
-	str = self.buffer:sub(1, n)
-	self.buffer = self.buffer:sub(1, n)
-	return str
-end
-function Buffer:peek(sn, en)
-	if not en then
-		en = sn or 1
-		sn = 1
-	end
-	if self.handle then
-		return
-	end
-	return self.buffer:sub(sn, en)
+function HTMLP:isDone()
+	return self.buffer:isDone()
 end
 
 return HTMLP

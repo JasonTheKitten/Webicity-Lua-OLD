@@ -14,7 +14,6 @@ function HTMLAPI:__call(mode, bo)
         fs.combine(bo.browser.location, "toolkits/text/html/elements"),
         els.elements, nil, "elements", nil, {eclass = self.classes})
 	local _, e = bo.browser:getFile("toolkits/text/html/parse/parse.lua", true)
-	print(e)
 	self.parser = 
 		new(bo.browser:getFile("toolkits/text/html/parse/parse.lua", true, els, self.classes, class)()
 			)(bo.response.content, bo) --Ambig snyx ):
@@ -24,6 +23,8 @@ function HTMLAPI:__call(mode, bo)
 		os.pullEvent()
 		self.parser:continue()
 	end
+	
+	self.document = self.parser.mainTag
 	
 	self:genDisplay()
 
