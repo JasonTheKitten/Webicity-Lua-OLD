@@ -14,7 +14,6 @@ TextElement.whitespace = {
 function TextElement:setTag(t) end--Override for speed
 function TextElement:calcSize(queue, stack, globals)
 	self.pcont = stack:peek()
-	print(self.pcont)
     self.container(self.pcont, self.browserObject)
 	self.pointer = new(class.Pointer)(self.container.pointer)
 	self.fValue = self.value

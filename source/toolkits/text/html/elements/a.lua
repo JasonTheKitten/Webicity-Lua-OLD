@@ -10,6 +10,8 @@ function AElement:__call(parent, bo)
 end
 
 function AElement:calcSize(queue, stack)
+	print(#self.children)
+	sleep(1)
 	if not (self:getShared("underline", true) or self.finalizeSize) then
 		queue:push(self.textC2)
 	end
@@ -25,9 +27,7 @@ function AElement:calcSize(queue, stack)
 end
 function AElement:placeProposals(queue)
 	if not self:getShared("underline", true) then
-		print("A")
 		self.textC1:placeProposals(queue)
-		print("B")
 		self.textC2:placeProposals(queue)
 	end
 	eclass.Element.placeProposals(self, queue)

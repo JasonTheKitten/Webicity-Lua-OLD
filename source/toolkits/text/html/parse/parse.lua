@@ -107,7 +107,7 @@ function HTMLP:continue()
 		self.tmp = self.tmp or {}
 		for i=1, self.loops do
 			local char = self.buffer:peek()
-			if not self.chars[char] and ((not (self.whitespace[char] or char=="/")) or self.tmp.name) then
+			if (not self.chars[char]) and self.tmp.name then
 				self.mode = "tagattrs"
 				break
 			end
@@ -123,6 +123,7 @@ function HTMLP:continue()
         for i=1, self.loops do
 			local char = self.buffer:eat()
 			if char==">" then
+				self.tmp.name = self.tmp.name:lower()
 				self.mode = "default"
 				if self.tmp.sc or not self.tmp.closing then
 					self.curTag = self:createTag(self.tmp.name, self.curTag)
@@ -161,7 +162,7 @@ function HTMLP:continue()
 	elseif self.mode == "escaped" then
 		self.tmp = self.tmp or ""
 		for i=1, self.loops do
-			if self:isDone() or (self.buffer:peek(2+#self.esc) == ("</"..self.esc)) then
+			if self:isDone() or (self.buffer:peek(2+#self.esc):lower() == ("</"..self.esc)) then
 				self.curTag.value = self.tmp
 				self.tmp = nil
 				self.mode = "default"
@@ -201,7 +202,7 @@ function HTMLP:createTag(tagtype, parent, info)
 		type = tagtype, parent = parent
 	}
 	
-	tag.element = new(elements[n] or class.Element
+	tag.element = new(elements[tagtype] or class.Element
 		)(parent and parent.element, self.browserObject) --ambig synnx ):
 	tag.element:setTag(tag)
 		
