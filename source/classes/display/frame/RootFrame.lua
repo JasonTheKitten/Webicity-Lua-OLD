@@ -18,7 +18,9 @@ function RootFrame:showPix(x, y, txt, bg, fg)
 		self.colorizer:getColor(bg, false) or colors.white)
     self.parent.setTextColor(
         self.colorizer:getColor(fg, false) or colors.black)
-    pcall(self.parent.write, txt)
+    xpcall(
+        function() self.parent.write(txt) end, 
+        function() self.parent.write("?") end)
 end
 function RootFrame:clearFrame()
 	self.parent.setBackgroundColor(

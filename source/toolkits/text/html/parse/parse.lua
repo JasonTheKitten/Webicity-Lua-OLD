@@ -10,8 +10,8 @@ do
 	
 	local strstart = "\"'`"
 	HTMLP.strstart = {}
-	for i=1, #whitespace do
-		HTMLP.whitespace[string.sub(whitespace, i, i)] = true
+	for i=1, #strstart do
+		HTMLP.strstart[string.sub(strstart, i, i)] = true
 	end
 
 
@@ -147,6 +147,7 @@ function HTMLP:continue()
 				self.tmp.closing = true
 			elseif char == "=" and self.tmp.attr then
 				self.mode = "value"
+				break
 			else
 				self.tmp.attr = (self.tmp.attr or "")..char
 			end
@@ -162,7 +163,10 @@ function HTMLP:continue()
 	elseif self.mode == "escaped" then
 		self.tmp = self.tmp or ""
 		for i=1, self.loops do
-			if self:isDone() or (self.buffer:peek(2+#self.esc):lower() == ("</"..self.esc)) then
+			if self:isDone() or 
+				((self.buffer:peek(2+#self.esc):lower() == ("</"..self.esc)) 
+					and not self.chars[self.buffer:peek(3+#self.esc, 3+#self.esc)]) 
+			then
 				self.curTag.value = self.tmp
 				self.tmp = nil
 				self.mode = "default"
@@ -172,19 +176,23 @@ function HTMLP:continue()
 			self.tmp = self.tmp..self.buffer:eat()
 		end
 	elseif self.mode == "value" then
+		--[[print("A")
+		sleep(1)]]
 		for i=1, self.loops do
 			local char = self.buffer:peek()
 			if not self.echar then
 				if self.strstart[char] then
 					self.echar = char
+				elseif self.whitespace[char] then
 				else
 					self.mode = "tagattrs"
 					self.tmp.attr = nil
 					break
 				end
+				char = self.buffer:peek(2, 2)
 			end
 			self.buffer:eat()
-			if char == self.echar then
+			if (char == self.echar) and self.echar then
 				self.mode = "tagattrs"
 				self.echar = nil
 				self.curTag.attrs[self.tmp.attr] = self.tmp.attrv
@@ -209,16 +217,17 @@ function HTMLP:createTag(tagtype, parent, info)
 	if parent then 
 		table.insert(parent.tree, {"tag", t})
 	end
-    if tagtype then table.insert(self.stack, tagtype) end
+    if tagtype then table.insert(self.stack, 1, tagtype) end
 	
 	return tag
 end
 
 function HTMLP:unwindTo(tag)
 	local pos
-	for i=#self.stack, 1, -1 do
+	for i=1, #self.stack do
 		if self.stack[i] == tag then
 			pos = i
+			break
 		end
 	end
 	if pos then
@@ -226,8 +235,8 @@ function HTMLP:unwindTo(tag)
 			self.curTag = self.curTag.parent
 		end
 		self.curTag = self.curTag.parent
-		while self.stack[pos] do
-			table.remove(self.stack, pos)
+		for i = 1, pos do
+			table.remove(self.stack, 1)
 		end
 	end
 end

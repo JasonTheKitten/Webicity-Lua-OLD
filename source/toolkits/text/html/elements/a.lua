@@ -10,8 +10,6 @@ function AElement:__call(parent, bo)
 end
 
 function AElement:calcSize(queue, stack)
-	print(#self.children)
-	sleep(1)
 	if not (self:getShared("underline", true) or self.finalizeSize) then
 		queue:push(self.textC2)
 	end
