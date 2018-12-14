@@ -1,7 +1,8 @@
 local Element = {}
-function Element:__call(parent, bo, skipAddC)
+function Element:__call(parent, bo, api, skipAddC)
 	self.children = {}
 	self.browserObject = bo
+	self.api = api
     --[[self.attributeContainer = 
         new(class.AttributesContainer)(parent.AttributesContainer)]]
     if parent then

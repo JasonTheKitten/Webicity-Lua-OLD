@@ -16,7 +16,7 @@ function HTMLAPI:__call(mode, bo)
 	local _, e = bo.browser:getFile("toolkits/text/html/parse/parse.lua", true)
 	self.parser = 
 		new(bo.browser:getFile("toolkits/text/html/parse/parse.lua", true, els, self.classes, class)()
-			)(bo.response.content, bo) --Ambig snyx ):
+			)(bo.response.content, bo, self) --Ambig snyx ):
 	
 	while not self.parser:isDone() do
 		os.queueEvent("")

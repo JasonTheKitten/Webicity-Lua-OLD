@@ -1,6 +1,6 @@
 local AElement = {}
-function AElement:__call(parent, bo)
-    eclass.Element.__call(self, parent, bo)
+function AElement:__call(parent, bo, api)
+    eclass.Element.__call(self, parent, bo, api)
 	self.textC1 = new(eclass.TextElement)(self, bo, true)
 	self.textC1.value = "_"
 	self.textC2 = new(eclass.TextElement)(self, bo, true)
@@ -18,7 +18,7 @@ function AElement:calcSize(queue, stack)
 	if not self:getShared("underline", true) then
 		queue:push(self.textC1)
 	end
-	self.shared = {
+	self.shared = self.shared or {
 		textColor = colors.blue,
 		underline = true
 	}
@@ -32,6 +32,8 @@ function AElement:placeProposals(queue)
 end
 function AElement:handleClick(x, y)
 	eclass.Element.handleClick(self, x, y)
+	self.shared.textColor = colors.purple
+	self.api:genDisplay()
 	if self.tag.attrs.href and self.tag.attrs.href~="" 
 		and self.browserObject.request.handlers["URL-nav"] then
 		self.browserObject.request.handlers["URL-nav"]({url = self.tag.attrs.href})

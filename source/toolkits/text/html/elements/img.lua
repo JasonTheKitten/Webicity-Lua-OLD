@@ -7,16 +7,16 @@ function ImgElement:__call(parent, bo)
 end
 
 function ImgElement:calcSize(queue, stack)
-    if not self.finalizeSize then
+--[[    if not self.finalizeSize then
         self.textC.value = self.tag.attrs["alt"] or "Image"
     end
 	self.parent.calcSize(self, queue, stack)
-	if self.finalizeSize then return end
-	queue:push(self.textC)
+	if not self.finalizeSize then return end
+	queue:push(self.textC)]]
 end
 function ImgElement:placeProposals(queue)
-	self.textC:placeProposals(queue)
-	eclass.Element.placeProposals(self, queue)
+--[[	self.textC:placeProposals(queue)
+	eclass.Element.placeProposals(self, queue)]]
 end
 
 return ImgElement, function()

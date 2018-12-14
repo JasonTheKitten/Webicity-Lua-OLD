@@ -1,6 +1,6 @@
 local TextElement = {}
-function TextElement:__call(parent, bo, skipAddC)
-    class.Element.__call(self, parent, bo, skipAddC)
+function TextElement:__call(parent, bo, api, skipAddC)
+    class.Element.__call(self, parent, bo, api, skipAddC)
     
     self.value = ""
     self.container = new(class.Fluid)

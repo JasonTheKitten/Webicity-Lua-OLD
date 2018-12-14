@@ -7,13 +7,18 @@ if not fs.getBackgroundColor then _G._ENV = _G end
 local Browser, new = loadfile(
     fs.combine(loc, "browser.lua"), _G)()
 local browser = new(Browser)("Webicity", loc)
+browser.rclocation = fs.combine(shell.getRunningProgram(), "../../resource")
 
 local handler, browserFrame
 local running = true
 handler = {
 	["URL-nav"] = function(info)
+		local url = info.url
+		if not string.find(url, ":") then
+			url = "https://google.com/"
+		end
 		browserFrame = browser:CreateFrame(
-			term, info.url, l, h, handler)
+			term, url, l, h, handler)
 	end,
 	["close"] = function(info)
 		if info.bF == browserFrame then
@@ -26,6 +31,6 @@ browserFrame = browser:CreateFrame(
     term, URL, l, h, handler)
 	
 while running do
-	local e = {coroutine.yield()}
+	local e = {os.pullEvent()}--coroutine.yield()}
 	browserFrame:resume(e)
 end
