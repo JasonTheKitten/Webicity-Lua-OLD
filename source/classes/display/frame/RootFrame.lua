@@ -20,7 +20,7 @@ function RootFrame:showPix(x, y, txt, bg, fg)
         self.colorizer:getColor(fg, false) or colors.black)
     xpcall(
         function() self.parent.write(txt) end, 
-        function() self.parent.write("?") end)
+        function() self.parent.write(" ") end)
 end
 function RootFrame:clearFrame()
 	self.parent.setBackgroundColor(

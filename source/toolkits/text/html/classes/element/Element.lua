@@ -30,20 +30,27 @@ function Element:calcSize(queue, stack, globals)
 	if self.finalizeSize then
 		self.parent.container:add(self.container)
 		self.finalizeSize = nil
-	
+	end
+	if self.finalizeGraphics then
+		self.finalizeGraphics = nil
 		return
 	end
 	
-	if not self.parent then
-		self.shared = {}
+	self.shared = self.shared or {}
+	
+	if self.shared.underline and not self:getShared("underline", true) then
+		globals.startDecorU = true
 	end
     
     self.container = stack:peek()
 	self.position = self.container.pointer
 	if self.parent and (self.container~=self.parent.container) then
 		self.finalizeSize = true
-	    queue:push(self)
     end
+	if self.parent then
+		self.finalizeGraphics = true
+		queue:push(self)
+	end
 	
     for i=#self.children, 1, -1 do
         queue:push(self.children[i])

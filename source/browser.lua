@@ -128,7 +128,7 @@ function Browser:CreateFrame(term, URL, l, h, handlers)
         URL = URLO,
 		oURL = URL,
         page = {
-            window = frame, rl = l, rh = h
+            window = frame, rl = l-1, rh = h
         },
 		handlers = handlers
     }

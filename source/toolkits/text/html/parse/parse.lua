@@ -37,7 +37,7 @@ HTMLP.loops = 50
 function HTMLP:__call(data, browserObject, api)
 	self.mainTag = self:createTag(nil, nil, 
 		{doctype = "html", docinfo = {}})
-	self.buffer = new(class.Buffer)(data)
+	self.buffer = ((type(data) == "string") and new(class.Buffer)(data)) or data
 	self.curTag = self.mainTag
 	self.mode = "default"
 	self.stack = {}
