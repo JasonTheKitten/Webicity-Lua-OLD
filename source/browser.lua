@@ -1,139 +1,140 @@
---New
+--New (Now single-inh!)
 local function new(class)
 	function class:__index(key)
-		local queue = {self}
-		while #queue>0 do
-			if rawget(queue[1], key) then
-				return rawget(queue[1], key)
+		local nxt = self
+		while nxt do
+			if rawget(nxt, key) then
+				return rawget(nxt, key)
 			end
-			for i=#queue[1].cparents, 1, -1 do
-				table.insert(queue, 2, queue[1].cparents[i])
-			end
-			table.remove(queue, 1)
+			nxt = nxt.cparent
 		end
 	end
 	
-	local rtn = {cparents = {class}}
+	local rtn = {cparent = class}
 	setmetatable(rtn, class)
 	
 	return rtn
 end
 
 --Browser
-local Browser = {cparents = {}}
-function Browser:__call(name, location)
-    self.name = name
-    self.location = location
-    self.classes = {}
-	self.protocols = {}
-	self.ctypes = {}
-	self.env = {
-		class = self.classes,
-		protocols = self.protocols,
-		ctypes = self.ctypes,
-		new = new
-	}
-    self:loadClassFolder(
-        fs.combine(self.location, "classes"),
-        self.classes, self.env)
-	self:loadClassFolder(
-        fs.combine(self.location, "protocols"),
-        self.protocols, self.env, "protocols")
-	self:loadClassFolder(
-		fs.combine(self.location, "toolkitAPIs"),
-        self.ctypes, self.env, "ctypes", true)
-    
-    if (#(getmetatable(self).cparents) == 0) then
-        getmetatable(self).cparents = {self.classes.Class}
-    end
-    
-    self.classes.Browser = Browser
-    
-    return self
-end
-function Browser:loadClassFolder(loc, tbl, env2, id, presN, ienv)
-	id = id or "class"
-    local env = ienv or {}
-    for k, v in pairs(_G) do env[k] = v end
-    env._G = env
-    env._ENV = env
-    env[id] = tbl
-    setmetatable(env, {__index = env2 or self.env})
-	if id == "class" then
-		for k, v in pairs(self.classes) do
-			env.class[k] = v
-		end
-	end
-    local onL = {}
-    local queue = {loc}
-    while #queue>0 do
-        if fs.isDir(queue[1]) then
-            local n = queue[1]
-            table.remove(queue, 1)
-            for k, v in pairs(fs.list(n)) do
-                table.insert(queue, fs.combine(n, v))
-            end
-        else
-			--print(queue[1])
-            local cls, lH = loadfile(queue[1], env)
-			if not cls then error(lH, -1) end
-			cls, lH = cls()
-			local v = fs.getName(queue[1])
-			if presN then
-				v = string.sub(queue[1], #loc+2)
-			end
-            local clsn = string.sub(v, 1, #v-4)
-            tbl[clsn] = cls
-            env[id][clsn] = cls
-            table.insert(onL, lH)
-			table.remove(queue, 1)
-        end
-    end
-    for i=1, #onL do
-        onL[i]()
-    end
-end
-function Browser:getResource(name)
-    return fs.open(fs.combine(self.rclocation, name), "r")
-end
-function Browser:getFile(name, env, merenv, ...)
-    env = (env == true and _ENV) or env
-    local file = fs.combine(self.location, name)
-    if env then
-        local menv = {}
-        for k, v in pairs(env) do menv[k] = v end
-        for k, v in pairs(merenv or _ENV) do menv[k] = v end
-        menv._G = menv
-        menv._ENV = menv
-        menv.class = {}
-        setmetatable(menv.class, {__index = self.env.class})
-		setmetatable(menv, {__index = function(mself, k)
-			return rawget(mself, k) or self.env[k]
-		end})
-        for k, v in pairs({...}) do
-            for k2, v2 in pairs(v) do
-                menv.class[k2] = v2
-            end
-        end
-        return loadfile(file, menv)
-    else
-        return file
-    end
-end
-function Browser:CreateFrame(term, URL, l, h, handlers)
-    local ft = self.classes[(term.showPix and "Frame") or "RootFrame"]
-    local frame = new(self.classes.RootFrame)(term, 1, 1, l, h)
-    local URLO = new(self.classes.URL)(URL)
-    local req = {
-        URL = URLO,
-		oURL = URL,
-        page = {
-            window = frame, rl = l-1, rh = h
-        },
-		handlers = handlers
-    }
-    
-    return new(self.classes.BrowserObject)(self, req)
+--This class represents an internet/web browser
+local Browser = {}
+
+function Browser:__call(cdata) --Init
+	self.cdata = cdata
+	local env = {}
+	env.class = self:load(self:load("classes", self.SOURCE), "class", env, _ENV)
+	Browser.cparent = env.class.Class
+	env.protocols = self:load(self:load("protocols", self.SOURCE), "protocols", env, _ENV)
+	self.env = env
+	
+	return self
 end
 
-return Browser, new
+--Methods
+function Browser:load(f, var, ...)
+	--f->file
+	--...->env
+	--Not providing an env will load a resource file
+	--An env of string will return a path
+	
+	local args = {...}
+	if not var then
+		return fs.open(
+			fs.combine(
+				fs.combine("/", self.cdata.resourceLocation)
+			, f), "r")
+	end
+	if type(var) == "number" then
+		if var == self.SOURCE then
+			return fs.combine(self.cdata.sourceLocation, f)
+		elseif var == self.RESOURCE then
+			return fs.combine(self.cdata.resourceLocation, f)
+		end
+	end
+	
+	local env = {
+		[var] = {},
+		new = new
+	}
+	local evars
+	if type(var) == "table" then
+		evars = var
+		var = var[1]
+	end
+	setmetatable(env, {
+		__index = function(s, k)
+			if rawget(s, k) then return rawget(s, k) end
+			for i=1, #args do
+				local r = args[i]
+				if r and r[k] then return r[k] end
+			end
+		end
+	})
+	setmetatable(env[var], {
+		__index = function(s, k)
+			if rawget(s, k) then return rawget(s, k) end
+			for i=1, #args do
+				local r = args[i]
+				if r and r[var] and r[var][k] then return r[var][k] end
+			end
+		end
+	})
+	
+	if fs.isDir(f) then --Load as dir
+		local q, l, ol = {f}, {}, {}
+		while #q>0 do
+			if fs.isDir(q[1]) then
+				local n = q[1]
+				table.remove(q, 1)
+				for k, v in pairs(fs.list(n)) do
+					table.insert(q, fs.combine(n, v))
+				end
+			else
+				--print(q[1])
+				local cls, lH = loadfile(q[1], env)
+				if not cls then error(lH, -1) end
+				cls, lH = cls()
+				local v = fs.getName(q[1])
+				local clsn = string.sub(v, 1, #v-4)
+				l[clsn] = cls
+				env[var][clsn] = cls
+				ol[#ol+1] = lH
+				table.remove(q, 1)
+			end
+		end
+		for i=1, #ol do ol[i]() end
+		return l
+	else --Load as file
+		local l, h = loadfile(f, env)
+		if h then error(h.."\n at "..f, -1) end
+		return l()
+	end
+end
+function Browser:getContentHandler(contentType)
+	--Returns the handler for a content type
+	--EG text/html
+	local ok, rtn = pcall(
+		self.load, self,
+		self:load(
+			"contentManagers/"..fs.combine("/", contentType).."/ini.lua", 
+			self.SOURCE),
+		"", self.env, _ENV)
+	if ok then return rtn end
+end
+
+function Browser:CreateFrame(URL, method, pterm, x, y, l, h, handlers)
+	local req = new(self.env.class.Request)(
+		self, URL, method,
+		new(self.env.class.ScrollFrame)(pterm, x, y, l, h), 
+		handlers)
+	return new(self.env.class.BrowserObject)(req)
+end
+
+--Constants
+Browser.SOURCE = 1
+Browser.RESOURCE = 2
+Browser.SAVEFILE = 3
+
+--Rtn (with def args)
+return new(Browser)(...)

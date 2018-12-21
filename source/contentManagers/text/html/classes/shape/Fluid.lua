@@ -30,5 +30,5 @@ function Fluid:__add()
 end
 
 return Fluid, function()
-    Fluid.cparents = {class.Shape}
+    Fluid.cparent = class.Shape
 end

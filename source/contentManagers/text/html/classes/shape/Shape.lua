@@ -9,5 +9,5 @@ function Shape:getAtt(name)
 end
 
 return Shape, function()
-    Shape.cparents = {class.Class}
+    Shape.cparent = class.Class
 end

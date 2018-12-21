@@ -1,8 +1,11 @@
+--URL
+--Represents a remote resource locator
 local URL = {}
-function URL:__call(loc)
+
+function URL:__call(loc)--init
 	local left = loc
     local parts = {
-		"https",
+		"https"
 	}
 	
     if string.find(left, ":") then
@@ -31,12 +34,40 @@ function URL:__call(loc)
     self.address = parts[2]
     self.port = parts[3]
     self.path = parts[4]
-    self.fURL = parts[1].."://"..parts[2]..
-        ((parts[3] and ":"..parts[3]) or "")..parts[4]
+    self.fURL = self.format(self.protocol, self.address, 
+		self.port, self.path)
 		
     return self
 end
 
+--Static methods
+URL.format = function(p, a, n, e)
+	--Formats a URL given info about said URL
+	return p.."://"..a..
+        ((n and ":"..n) or "")..e
+end
+URL.createFromExisting = function(existing, ext)
+	--Creates a new URL given an old URL and a path
+	--Useful for relative resources
+	if ext:find(":") then
+		return new(URL)(ext)
+	end
+	if type(existing) == "string" then
+		existing = new(URL)(existing)
+	end
+	if string.sub(ext, 1, 1) == "/" then
+		return new(URL)(URL.format(
+			existing.protocol, existing.address,
+			existing.port, ext))
+	else
+		local path = existing.path
+		return new(URL)(URL.format(
+			existing.protocol, existing.address,
+			existing.port, path))
+	end
+end
+
+--Return/inh
 return URL, function()
     URL.cparents = {class.Class}
 end

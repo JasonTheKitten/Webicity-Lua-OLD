@@ -1,3 +1,5 @@
+--Colorizer
+--Returns a color based of of given info
 local Colorizer = {}
 
 function Colorizer:getColor(color, isText)
@@ -5,5 +7,5 @@ function Colorizer:getColor(color, isText)
 end
 
 return Colorizer, function()
-	Colorizer.cparents = {class.Class}
+	Colorizer.cparent = class.Class
 end

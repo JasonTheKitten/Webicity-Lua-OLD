@@ -1,17 +1,13 @@
 --Class
 local Class = {}
-Class.cparents = {}
-Class.__eq = rawequal
-function Class:isA(class)
-	local queue = {self}
-	while #queue>0 do
-		if queue[1] == class then
+
+function Class:isA(class)--Checks if is inherited
+	local nxt = self
+	while nxt do
+		if nxt == class then
 			return true
 		end
-		for i=#queue[1].cparents, 1, -1 do
-			table.insert(queue, 2, queue[1].cparents[i])
-		end
-		table.remove(queue, 1)
+		nxt = nxt.cparent
 	end
 	return false
 end

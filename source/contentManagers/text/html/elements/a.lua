@@ -1,6 +1,6 @@
 local AElement = {}
 function AElement:__call(parent, bo, api)
-    eclass.Element.__call(self, parent, bo, api)
+    class.Element.__call(self, parent, bo, api)
 	
 	return self
 end
@@ -12,10 +12,10 @@ function AElement:calcSize(queue, stack, globals)
 			underline = true
 		}
 	end
-	eclass.Element.calcSize(self, queue, stack, globals)
+	class.Element.calcSize(self, queue, stack, globals)
 end
 function AElement:handleClick(x, y)
-	eclass.Element.handleClick(self, x, y)
+	class.Element.handleClick(self, x, y)
 	self.shared.textColor = colors.purple
 	self.api:genDisplay()
 	if self.tag.attrs.href and self.tag.attrs.href~="" 
@@ -25,5 +25,5 @@ function AElement:handleClick(x, y)
 end
 
 return AElement, function()
-    AElement.cparents = {eclass.Element}
+    AElement.cparent = class.Element
 end

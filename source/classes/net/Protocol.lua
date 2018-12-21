@@ -1,9 +1,10 @@
-local Protocoll = {}
+--Protocol
+local Protocol = {} --Abstract
 
-function Protocoll:submit()
+function Protocol:submit() --Abstract
     error()
 end
 
-return Protocoll, function()
-    Protocoll.cparents = {class.Class}
+return Protocol, function()
+    Protocol.cparent = class.Class
 end

@@ -34,5 +34,5 @@ function Pointer:__eq(obj)
 end
 
 return Pointer, function()
-    Pointer.cparents = {class.Class}
+    Pointer.cparent = class.Class
 end

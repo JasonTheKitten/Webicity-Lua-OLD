@@ -82,5 +82,5 @@ function Rect:copy()
 end
 
 return Rect, function()
-    Rect.cparents = {class.Shape}
+    Rect.cparent = class.Shape
 end

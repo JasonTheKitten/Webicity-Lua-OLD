@@ -1,3 +1,5 @@
+--HTTP Protocol
+--Loads info from the computer
 local HTTPP = {}
 
 function HTTPP:resolvePost(tbl)
@@ -9,10 +11,10 @@ function HTTPP:resolvePost(tbl)
 end
 
 function HTTPP:submit(req)
-    local URL = req.URL.fURL
+	local URL = req.URL
     local res = {
         URL = URL,
-        protocol = req.URL.protocol
+        protocol = req.URLObj.protocol
     }
     if http and http.checkURL(URL) then
         local handle
@@ -25,7 +27,7 @@ function HTTPP:submit(req)
             res.content = handle:readAll() --TODO: just pass the buffer
             res.headers = (handle.getResponseHeaders and handle:getResponseHeaders()) or {}
             res.responseCode = handle:getResponseCode()
-            res.type = res.headers["Content-Type"] or req.defType or "text/html"
+            res.contentType = res.headers["Content-Type"] or req.defType or "text/html"
             handle:close()
         end
     end
@@ -43,5 +45,5 @@ function HTTPP:submit(req)
 end
 
 return HTTPP, function()
-    HTTPP.cparents = {class.Protocol}
+    HTTPP.cparent = class.Protocol
 end

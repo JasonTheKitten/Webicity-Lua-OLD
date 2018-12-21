@@ -1,25 +1,36 @@
+--BrowserObject
+--Represents a loaded site
 local BrowserObject = {}
-function BrowserObject:__call(browser, req)
+
+function BrowserObject:__call(req) --init
     self.request = req
-	self.browser = browser
-    req.browser = browser
-    if protocols[req.URL.protocol] then
-        self.response = protocols[req.URL.protocol]:submit(req)
+    if protocols[req.URLObj.protocol] then
+        self.response = protocols[req.URLObj.protocol]:submit(req)
     end
-    local resp = self.response
-    if resp and ctypes[resp.type] then
-        self.contentManager = new(ctypes[resp.type])(req.mode or "document", self)
-		req.page.window:redraw()
-    end
-    return self.contentManager and self
+    if not self.response then return end
+	local cm = req.browser:getContentHandler(self.response.contentType)
+	if not cm then return end
+	self.contentManager = new(cm)
+	self.data = {
+		URL = req.URL,
+		URLObj = req.URLObj,
+		browser = req.browser,
+		contentManager = self.contentManager
+	}
+	self.contentManager("document", self)
+	
+	return self
 end
 
-function BrowserObject:resume(args)
+--Methods
+function BrowserObject:resume(args) 
+	--Resumes the site with given arguments
     if self.contentManager.resume then
 		self.contentManager:resume(args)
 	end
 end
 
+--Ret/inh
 return BrowserObject, function()
-    BrowserObject.cparents = {class.Class}
+    BrowserObject.cparent = class.Class
 end

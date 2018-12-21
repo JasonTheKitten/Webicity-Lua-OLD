@@ -17,15 +17,16 @@ function TextElement:calcSize(queue, stack, globals)
     self.container(self.pcont, self.browserObject)
 	self.pointer = new(class.Pointer)(self.container.pointer)
 	self.fValue = self.value
-	if self.whitespace[string.sub(self.fValue, 1, 1)] and not globals.enableSpace then
+	if self.whitespace[string.sub(self.fValue, 1, 1)]
+		and not globals.enableSpace then
 		self.fValue = string.sub(self.fValue, 2)
 	end
 	if globals.startDecorU and self.fValue ~= "" then
 		self.fValue = "_"..self.fValue.."_"
 		globals.startDecorU = false
 	end
-	globals.enableSpace = (not self.whitespace[string.sub(self.value, #self.value)]) 
-		and (self.value~="" or globals.enableSpace)
+	globals.enableSpace = (not self.whitespace[string.sub(self.value, #self.value)]) or 
+		(self.value=="" and globals.enableSpace)
 	self.fValue = self.fValue:gsub("[\128-\255]", "?")
     self.container:flow(#self.fValue)
 	

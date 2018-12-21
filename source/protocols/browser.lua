@@ -6,12 +6,12 @@ function BrowserP:submit(req)
         URL = URL,
         protocol = req.URL.protocol,
         headers = {},
-        type = req.defType or "text/html" --By default
+        contentType = "text/html" --By default
     }
     
-    local h = req.browser:getResource(fs.combine("pages", fs.combine("/", req.URL.address))..".html")
+    local h = req.browser:load(fs.combine("pages", fs.combine("/", req.URL.address))..".html")
 	if not h then
-		h = req.browser:getResource("pages/snr.html")
+		h = req.browser:load("pages/snr.html")
 	end
 	if h then
 		res.content = h:readAll()
@@ -25,4 +25,6 @@ function BrowserP:submit(req)
     return res
 end
 
-return BrowserP
+return BrowserP, function()
+    BrowserP.cparent = class.Protocol
+end

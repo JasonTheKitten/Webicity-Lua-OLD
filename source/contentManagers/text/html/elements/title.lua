@@ -1,6 +1,6 @@
 local TitleElement = {}
 function TitleElement:__call(parent, bo)
-    eclass.Element.__call(self, parent, bo)
+    class.Element.__call(self, parent, bo)
 	
 	return self
 end
@@ -16,5 +16,5 @@ function TitleElement:placeProposals(queue) end
 function TitleElement:addChild(child) end
 
 return TitleElement, function()
-    TitleElement.cparents = {eclass.Element}
+    TitleElement.cparent = class.Element
 end

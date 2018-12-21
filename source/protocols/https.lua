@@ -5,5 +5,5 @@ function HTTPP:submit(req)
 end
 
 return HTTPP, function()
-    HTTPP.cparents = {class.Protocol}
+    HTTPP.cparent = class.Protocol
 end

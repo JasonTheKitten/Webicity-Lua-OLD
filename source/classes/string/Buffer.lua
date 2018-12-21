@@ -1,6 +1,7 @@
+--Buffer
 local Buffer = {}
 
-function Buffer:__call(arg)
+function Buffer:__call(arg) --init
 	if type(arg) == "table" then
 		self.buffer = ""
 		self.handle = arg
@@ -11,12 +12,15 @@ function Buffer:__call(arg)
 	
 	return self
 end
-function Buffer:isDone()
+
+function Buffer:isDone() --Checks if all data has been read
 	if not self.handle then 
 		return self.buffer == "" end
 	return self.done
 end
-function Buffer:eat(n)
+function Buffer:eat(n) 
+	--Removes first n characters from stream 
+	--and returns them
 	n = n or 1
 	local str = ""
 	if self.handle then
@@ -26,7 +30,9 @@ function Buffer:eat(n)
 	self.buffer = self.buffer:sub(n+1, #self.buffer)
 	return str
 end
-function Buffer:peek(sn, en)
+function Buffer:peek(sn, en) 
+	--Returns the string inside the buffer 
+	--beginning at sn and ending at en
 	if not en then
 		en = sn or 1
 		sn = 1
@@ -38,5 +44,5 @@ function Buffer:peek(sn, en)
 end
 
 return Buffer, function()
-    Buffer.cparents = {class.Class}
+    Buffer.cparent = class.Class
 end

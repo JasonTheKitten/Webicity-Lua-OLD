@@ -1,36 +1,39 @@
+xpcall(function()
+--Vars
 local URL = "google.com"
+local x, y, l, h = 1, 1, term.getSize()
 
-local loc = fs.combine(shell.getRunningProgram(), "../../source")
-local l, h = term.getSize()
+--Resolve vars
+local sloc = fs.combine(shell.getRunningProgram(), "../../source")
+local rsloc = fs.combine(shell.getRunningProgram(), "../../resource")
 
-if not fs.getBackgroundColor then _G._ENV = _G end
-local Browser, new = loadfile(
-    fs.combine(loc, "browser.lua"), _G)()
-local browser = new(Browser)("Webicity", loc)
-browser.rclocation = fs.combine(shell.getRunningProgram(), "../../resource")
+--Load Webicity
+local browser = loadfile(fs.combine(sloc, "browser.lua"), _G)({
+	sourceLocation = sloc, 
+	resourceLocation = rsloc,
+	name = "Webicity"})
 
 local handler, browserFrame
 local running = true
 handler = {
 	["URL-nav"] = function(info)
-		local url = info.url
-		if not string.find(url, ":") then
-			url = "https://google.com/"
-		end
 		browserFrame = browser:CreateFrame(
-			term, url, l, h, handler)
+			info.url, "GET", term, 1, 1, l, h, handler)
 	end,
 	["close"] = function(info)
-		if info.bF == browserFrame then
-			running = false
-		end
+		running = false
 	end
 }
-
-browserFrame = browser:CreateFrame(
-    term, URL, l, h, handler)
+handler["URL-nav"]({url=URL})
 	
 while running do
 	local e = {os.pullEvent()}--coroutine.yield()}
 	browserFrame:resume(e)
 end
+end, function(err)
+	printError(err)
+	for i=4, 10 do
+		local o, e = pcall(error, "", i)
+		printError(" at "..e)
+	end
+end)

@@ -1,7 +1,7 @@
 local ImgElement = {}
 function ImgElement:__call(parent, bo)
-    eclass.Element.__call(self, parent, bo)
-	self.textC = new(eclass.TextElement)(parent, bo)
+    class.Element.__call(self, parent, bo)
+	self.textC = new(class.TextElement)(parent, bo)
 	
 	return self
 end
@@ -16,9 +16,9 @@ function ImgElement:calcSize(queue, stack)
 end
 function ImgElement:placeProposals(queue)
 --[[	self.textC:placeProposals(queue)
-	eclass.Element.placeProposals(self, queue)]]
+	class.Element.placeProposals(self, queue)]]
 end
 
 return ImgElement, function()
-    ImgElement.cparents = {eclass.Element}
+    ImgElement.cparent = class.Element
 end
