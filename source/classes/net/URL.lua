@@ -60,7 +60,7 @@ URL.createFromExisting = function(existing, ext)
 			existing.protocol, existing.address,
 			existing.port, ext))
 	else
-		local path = existing.path
+		local path = existing.path.."/"..ext
 		return new(URL)(URL.format(
 			existing.protocol, existing.address,
 			existing.port, path))

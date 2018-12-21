@@ -51,5 +51,5 @@ end
 function TextElement:addChild(child) end
 
 return TextElement, function()
-    TextElement.cparents = {class.Element}
+    TextElement.cparent = class.Element
 end

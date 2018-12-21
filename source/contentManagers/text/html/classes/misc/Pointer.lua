@@ -1,5 +1,7 @@
+--Pointer
+--Represents a postion
 local Pointer = {}
-function Pointer:__call(x, y)
+function Pointer:__call(x, y) --init
     if (type(x) == "table") and x:isA(Pointer) then
         self.x, self.y = x.x, x.y
     else
@@ -9,7 +11,7 @@ function Pointer:__call(x, y)
     return self
 end
 
-function Pointer:__add(obj)
+function Pointer:__add(obj) --Invoked on +
 	return new(Pointer)(self.x, self.y):add(obj)
 end
 

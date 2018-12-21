@@ -11,7 +11,7 @@ function HTTPP:resolvePost(tbl)
 end
 
 function HTTPP:submit(req)
-	local URL = req.URL
+	local URL = req.URLObj.fURL
     local res = {
         URL = URL,
         protocol = req.URLObj.protocol

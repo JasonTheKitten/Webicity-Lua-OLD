@@ -20,7 +20,8 @@ function AElement:handleClick(x, y)
 	self.api:genDisplay()
 	if self.tag.attrs.href and self.tag.attrs.href~="" 
 		and self.browserObject.request.handlers["URL-nav"] then
-		self.browserObject.request.handlers["URL-nav"]({url = self.tag.attrs.href})
+		local mURL = self.browserObject.data.URLObj:createFromExisting(self.tag.attrs.href)
+		self.browserObject.request.handlers["URL-nav"]({url = mURL.fURL})
 	end
 end
 

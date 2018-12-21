@@ -20,6 +20,9 @@ function HTMLAPI:__call(mode, bo)
 			"class", els, browser.env, _ENV)
 			)(bo.response.content, bo, self)
 	
+	self.class = els.class
+	self.elements = els.elements
+	
 	while not self.parser:isDone() do
 		os.queueEvent("")
 		os.pullEvent()
@@ -33,46 +36,34 @@ function HTMLAPI:__call(mode, bo)
 	return self
 end
 
-function HTMLAPI:genDisplay()
-	local pg = self.browserObject.request.page
-	local owin = pg.window
-	local win = new(class.Frame)(owin, 1, 1, owin.lm, owin.lm)
-	pg.rl, pg.rh = pg.rld, pg.rhd
-	win.l, win.h = pg.rl, pg.rh
-	win.lm, win.lh = pg.rl, pg.rh
+function HTMLAPI:genDisplay() --Generates the page layout
+	local req = self.browserObject.request
+	local win = req.frame
 	self:genDisplayContent(win)
-	if win.h>pg.rhd then
-		pg.rl = pg.rld-1
-		win.l = pg.rl
-		win.lm = win.l
+	--Scrollbars
+	if win.lby>win.h then
+		
 		self:genDisplayContent(win)
 	end
-	if win.l>pg.rld then
-		pg.rh = pg.rhd-1
-		win.h = pg.rh
-		win.hm = win.h
+	if win.lbx>win.l then
 		self:genDisplayContent(win)
 	end
-	if win.h>pg.rh and pg.rl==pg.rld then
-		pg.rl = pg.rld-1
-		win.l = pg.rl
-		win.lm = win.l
+	if win.lby>win.h then
 		self:genDisplayContent(win)
 	end
 	win:redraw()
-	owin:redraw()
 end
 
 function HTMLAPI:genDisplayContent(win)
 	local queue, dqueue, stack = 
-		new(self.classes.Queue)(self.document.element), 
-		new(self.classes.Queue)(self.document.element),
-		new(self.classes.Queue)(
-			new(self.classes.Rect)(
+		new(self.class.Queue)(self.document.element), 
+		new(self.class.Queue)(self.document.element),
+		new(self.class.Queue)(
+			new(self.class.Rect)(
 				1, 1,
-				new(self.classes.Pointer)(1, 1), 
+				new(self.class.Pointer)(1, 1), 
 				0, 0,
-				new(self.classes.Pointer)(1, 1), 
+				new(self.class.Pointer)(1, 1), 
 				win))
 	local globals = {}
 	while queue:peek() do
@@ -86,7 +77,7 @@ end
 function HTMLAPI:resume(event)
 	if event[1] == "mouse_click" then
 		if event[2] == 1 then
-			self.browserObject.request.page.window:onClick(event[3], event[4])
+			self.browserObject.data.frame:onClick(event[3], event[4])
 		end
 	end
 end

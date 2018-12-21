@@ -1,9 +1,9 @@
-local HTTPP = {}
+local HTTPSP = {}
 
-function HTTPP:submit(req)
+function HTTPSP:submit(req)
     return protocols.http:submit(req)
 end
 
-return HTTPP, function()
-    HTTPP.cparent = class.Protocol
+return HTTPSP, function()
+    HTTPSP.cparent = protocols.http
 end

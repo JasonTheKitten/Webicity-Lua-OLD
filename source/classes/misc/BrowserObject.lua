@@ -15,6 +15,7 @@ function BrowserObject:__call(req) --init
 		URL = req.URL,
 		URLObj = req.URLObj,
 		browser = req.browser,
+		frame = req.frame,
 		contentManager = self.contentManager
 	}
 	self.contentManager("document", self)

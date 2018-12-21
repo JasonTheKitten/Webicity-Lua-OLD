@@ -76,7 +76,7 @@ end
     
 function Frame:getPixInfo(x, y)
     return
-        (self.visible and not ((x<1 or x>self.lm) or (y<1 or y>self.hm))), x, y
+        (self.visible and not ((x<1 or x>self.l) or (y<1 or y>self.h))), x, y
 end
 
 function Frame:genBufferPos(x, y)

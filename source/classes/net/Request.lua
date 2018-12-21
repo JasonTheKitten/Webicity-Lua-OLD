@@ -8,6 +8,7 @@ function Request:__call(browser, URL, method, frame, handlers) --init
 	self.URL = URL
 	self.URLObj = new(class.URL)(URL)
 	self.handlers = handlers
+	self.frame = frame
 	
 	return self
 end

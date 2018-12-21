@@ -10,7 +10,7 @@ function Fluid:__call(container, bo, position, l, h)
 end
 function Fluid:flow(times)
     local function incPosY()
-        if self.length>self.browserObject.request.page.rl then
+        if self.length>self.browserObject.data.frame.l then
             self.length, self.height = self.container.x, self.height+1
         end
     end
