@@ -14,6 +14,7 @@ BrowserInstance.cparents = {class.Class}
 function BrowserInstance:__call()
     self.tasks = task.createTaskSystem()
     self.protocols = {}
+    self.contenthandlers = {}
 end
 
 function BrowserInstance:addTask(f)
