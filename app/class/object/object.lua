@@ -11,6 +11,7 @@ object.Object = Object
 Object.cparents = {class.Class}
 function Object:__call(prototype)
     self.fields = {}
+	self.info = {}
     self.readonly = {}
     self.getters = {}
     self.setters = {}
@@ -31,6 +32,13 @@ function Object:setraw(get, set)
 end
 function Object:getraw(get)
     return self.fields[get]
+end
+
+function Object:setinfo(get, set)
+    self.info[get] = set
+end
+function Object:getinfo(get)
+    return self.info[get]
 end
 
 function Object:field(get, set)

@@ -28,6 +28,9 @@ end
 function BrowserInstance:getProtocol(protocol)
     return self.protocols[protocol]
 end
+function BrowserInstance:getDefaultProtocol()
+	
+end
 
 function BrowserInstance:continue()
 	self.tasks.purgeDead()

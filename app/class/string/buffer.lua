@@ -34,14 +34,8 @@ function Buffer:eat(n) --TODO: Buffer:eatChunks()
 	end
 	return str
 end
-function Buffer:peek(sn, en) --TODO: Buffer:peekChunks()
-	--Returns the string inside the buffer 
-	--beginning at sn and ending at en
-	if sn and not en then
-		en = sn
-		sn = 1
-	end
-	return self.buffer:sub(self.pointer+sn-1, self.pointer+en-1)
+function Buffer:peek(l)
+	return self.buffer:sub(self.pointer, self.pointer+l-1)
 end
 
-Buffer.chunksize = 2^30
+Buffer.chunksize = 2^16

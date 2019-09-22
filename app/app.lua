@@ -2,8 +2,10 @@ local ribbon = require()
 
 local basecomponent = ribbon.require "component/basecomponent"
 local class = ribbon.require "class"
+local filesystem = ribbon.require "filesystem"
 local statics = ribbon.require "statics"
 local task = ribbon.require "task"
+local util = ribbon.require "util"
 local process = ribbon.require "process"
 
 local BlockComponent = ribbon.require("component/blockcomponent").BlockComponent
@@ -13,6 +15,22 @@ local Label = ribbon.require("component/label").Label
 
 local BrowserFrame = ribbon.reqpath("${CLASS}/component/browserframe").BrowserFrame
 local BrowserInstance = ribbon.reqpath("${CLASS}/browser/browserinstance").BrowserInstance
+
+--[[local util = ribbon.require "util"
+local HTMLParser = ribbon.reqpath("${APP}/content/html/parser").HTMLParser
+local Buffer = ribbon.reqpath("${CLASS}/string/buffer").Buffer
+HTMLParser.parse(class.new(Buffer, util.inf("test.html")))]]
+
+local datapath, data = ribbon.resolvePath("${DATA}"), {}
+if datapath~="${DATA}" then
+	--TODO: filesystem.makeDir (Ribbon)
+	if not filesystem.exists(ribbon.resolvePath("${DATA}/plugins.json")) then
+		util.outf(ribbon.resolvePath("${DATA}/plugins.json"), "[{\"plugin\":\"${DIR}/plugin\", \"internal\":true}]")
+	end
+	if not filesystem.exists(ribbon.resolvePath("${DATA}/settings.json")) then
+		util.outf(ribbon.resolvePath("${DATA}/settings.json"), "[{\"newtab\":\"webicity://newtab\"}]")
+	end
+end
 
 local COLORS = statics.get("colors")
 
@@ -76,7 +94,7 @@ basecomponent.execute(function(gd)
 	
 	class.new(BrowserFrame, contentpane, browserInstance):attribute(
 		"width", {1}, "height", {1, -1},
-		"URL", "google.com?q=Web Browsers",
+		"URL", "file://test.html",
 		"ondisplaytitleupdate", function(title)
 			viewport:getComponentByID("title"):attribute("text", title)
 		end

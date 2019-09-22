@@ -10,7 +10,7 @@ local APP = {
 		BIN = "${DIR}/bin",
 		CLASS = "${APP}/class",
 		CMD = "${APP}/app.lua",
-		DATA = "WebicityUserDir",--"${APP}/data",
+		DATA = "${DIR}/data",
 		DIR = "${PATH}/..",
 		ROOT = "/",
 		

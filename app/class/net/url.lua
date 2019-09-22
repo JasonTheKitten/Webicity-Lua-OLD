@@ -25,15 +25,30 @@ end
 
 function URL:toString()
 	local rtn = ""
-	if self.scheme then rtn = self.scheme.."://" end
-	if self.username or self.password then
-		rtn=rtn..(self.username or "")..":"..(self.password or "").."@"
+	if self.scheme then rtn = self.scheme..":" end
+	if self.host then
+		rtn=rtn.."//"
+		if self.username or self.password then
+			rtn=rtn..self.username
+			if self.password then
+				rtn=rtn..":"..self.password
+			end
+			rtn = rtn.."@"
+		end
+		rtn=rtn..self.host
+		if self.port then
+			rtn=rtn..":"..tostring(self.port)
+		end
+	elseif self.scheme == "file" then
+		rtn = rtn.."//"
 	end
-	rtn=rtn..(self.host or "")
-	if self.port then
-		rtn=rtn..":"..tostring(self.port)
+	if self.cannotBeABaseURL then
+		rtn = rtn..self.path[1]
+	else
+		for i=1, #self.path do
+			rtn=rtn.."/"..self.path[i]
+		end
 	end
-	for k, v in ipairs(self.path) do rtn=rtn.."/"..v end
 	if self.query then rtn=rtn.."?"..self.query end
 	if self.fragment then rtn=rtn.."#"..self.fragment end
 	return rtn

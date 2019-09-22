@@ -4,6 +4,7 @@ local class = ribbon.require "class"
 
 local BlockComponent = ribbon.require("component/blockcomponent").BlockComponent
 local Component = ribbon.require("component/component").Component
+local Label = ribbon.require("component/label").Label
 
 local URL = ribbon.reqpath("${CLASS}/net/url").URL
 
@@ -19,7 +20,7 @@ function BrowserFrame:__call(parent, browser)
 	
 	self.running = true
 	
-	self:attribute("display-title", "Unnamed BrowserFrame")
+	self:attribute("display-title", "Untitled BrowserFrame")
     
     self.browser = browser
 	browser:addTask(function()
@@ -46,11 +47,19 @@ function BrowserFrame:processAttributes(updated)
 				end
             end
             self.URL = self.attributes["URL"]
+			
 			if not updated["display-title"] then
 				self.attributes["display-title"] = self.URL:toString()
 				if self.attributes["ondisplaytitleupdate"] then
 					self.attributes["ondisplaytitleupdate"](self.attributes["display-title"])
 				end
+			end
+			
+			local protocol = self.browser:getProtocol(self.URL.scheme) or self.browser:getDefaultProtocol()
+			if not pcall(protocol, self.URL, self) then
+				self:attribute("children", {
+					class.new(Label, nil, "Your browser failed to load the requested resource")
+				})
 			end
         end)
     end
