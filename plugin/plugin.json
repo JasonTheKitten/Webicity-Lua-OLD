@@ -1,0 +1,7 @@
+{
+	"name": "Webicity Core Plugin",
+	"version":"0.1.0",
+	"description": "Webicity Core Features",
+	"authors": ["EveryOS", "ihack2172"],
+	"main":"plugin.lua",
+}
