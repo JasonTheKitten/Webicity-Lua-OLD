@@ -16,10 +16,10 @@ local Label = ribbon.require("component/label").Label
 local BrowserFrame = ribbon.reqpath("${CLASS}/component/browserframe").BrowserFrame
 local BrowserInstance = ribbon.reqpath("${CLASS}/browser/browserinstance").BrowserInstance
 
---[[local util = ribbon.require "util"
-local HTMLParser = ribbon.reqpath("${APP}/content/html/parser").HTMLParser
+local util = ribbon.require "util"
+local HTMLParser = ribbon.reqpath("${DIR}/plugin/content/html/parser").HTMLParser
 local Buffer = ribbon.reqpath("${CLASS}/string/buffer").Buffer
-HTMLParser.parse(class.new(Buffer, util.inf("test.html")))]]
+HTMLParser.parse(class.new(Buffer, util.inf(ribbon.resolvePath("${DIR}/../testw.html"))))
 
 local datapath, data = ribbon.resolvePath("${DATA}"), {}
 if datapath~="${DATA}" then
@@ -53,6 +53,9 @@ basecomponent.execute(function(gd)
     )
     
 	local browserInstance = class.new(BrowserInstance)
+	browserInstance:loadplugins({{
+		plugin = "${DIR}/plugin/"
+	}})
 	
     local baseComponent = class.new(basecomponent.BaseComponent, ctx, process)
 	local viewport = baseComponent:getDefaultComponent():attribute(

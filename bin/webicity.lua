@@ -20,7 +20,7 @@ local APP = {
 		CRASHHANDLER = "${APP}/crash.lua",
 		
 		PATH = nil,
-		RIBBON = "Ribbon",
+		RIBBON = "${DIR}/../Ribbon",
 	},
 	
 	PATHRESOLUTIONTRIES = 50,
@@ -81,6 +81,7 @@ local results = {pcall(function(...)
 	if not paths["RIBBON"] then
         paths["RIBBON"] = paths["PATH"].."/ribbon"
 	end
+	paths["RIBBON"] = paths["RIBBON"]:gsub("${DIR}", paths["DIR"]:gsub("${PATH}", paths["PATH"]))
 	
 	--Create environment
 	local env = {}

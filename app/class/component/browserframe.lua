@@ -58,7 +58,7 @@ function BrowserFrame:processAttributes(updated)
 			local protocol = self.browser:getProtocol(self.URL.scheme) or self.browser:getDefaultProtocol()
 			if not pcall(protocol, self.URL, self) then
 				self:attribute("children", {
-					class.new(Label, nil, "Your browser failed to load the requested resource")
+					class.new(Label, nil, "Your browser failed to load the requested resource.")
 				})
 			end
         end)

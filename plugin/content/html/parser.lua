@@ -37,9 +37,9 @@ function HTMLParser.parse(buffer)
 	end
 
 	local MODE_LOOKUP, insertion_mode, original_insertion_mode
+	local reprocess, mode_override
     local function processInsertionMode(token)
-        local reprocess, mode_override = true, nil
-		
+        reprocess, mode_override = true, nil
 		MODE_LOOKUP = MODE_LOOKUP or {
 			["INITIAL"] = function(token)
 				if token[1] == TOKEN_TYPES.CHARACTER and whitespace[token[2]] then
@@ -105,7 +105,6 @@ function HTMLParser.parse(buffer)
 					original_insertion_mode = insertion_mode
 					insertion_mode = MODE_LOOKUP.TEXT
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "script" then
-					
 					state = STATE_LOOKUP.SCRIPT_DATA
 					original_insertion_mode = insertion_mode --TODO: Direct function from lookup?
 					insertion_mode = MODE_LOOKUP.TEXT
@@ -404,6 +403,7 @@ function HTMLParser.parse(buffer)
             elseif char == "" then
                 emit({TOKEN_TYPES.EOF})
             else
+				--print(char..buffer:peek(lookfor("[&<\0]")-1))
                 emit({TOKEN_TYPES.CHARACTER, char..buffer:eat(lookfor("[&<\0]")-1)})
             end
         end,
@@ -881,7 +881,7 @@ function HTMLParser.parse(buffer)
             elseif char == "\0" then
                 buffer:eat(1); attr_name=attr_name..REP_CHAR
             else
-                attr_name=attr_name..buffer:eat(lookfor("[%s/>=\0]")-1):lower()
+                attr_name=attr_name..buffer:eat(1)..buffer:eat(lookfor("[%s/>=\0]")-1):lower()
             end
         end,
         ["AFTER_ATTR_NAME"] = function()
@@ -907,7 +907,7 @@ function HTMLParser.parse(buffer)
             local char = buffer:peek(1)
             if whitespace[char] then
                 buffer:eat(1)
-            elseif char:find("\"'") then
+            elseif char:find("[\"']") then
                 buffer:eat(1); quote_type = char
                 state = STATE_LOOKUP.ATTR_VAL_QUO
             elseif char == ">" then
@@ -930,7 +930,7 @@ function HTMLParser.parse(buffer)
             elseif char == "" then
                 emit({TOKEN_TYPES.EOF})
             else
-                attr_value = attr_value..char
+                attr_value = attr_value..buffer:eat(lookfor(quote_type)-1)
             end
         end,
         ["ATTR_VAL_NQ"] = function()
@@ -1474,15 +1474,26 @@ function HTMLParser.parse(buffer)
     
     state = STATE_LOOKUP.DATA
 	local tclock = os.clock()
+	local debclock = os.clock()
+	local debclock2 = os.clock()
+	local res = {}
     while not buffer:isEmpty() do
 		local ost, ct = state, os.clock()
 		state()
+		res[ost] = (res[ost] or 0)+(os.clock()-ct)
+		if os.clock() - debclock > 2 then
+			print()
+			for k, v in pairs(STATE_LOOKUP) do if res[v] and res[v]>0 then print(k, res[v]) end end
+			debclock = os.clock()
+		end
 		if os.clock()-tclock>.2 then
 			coroutine.yield()
 			tclock = os.clock()
 		end
 	end
     state()
+	print(os.clock()-debclock2)
+	sleep(1)
 	
 	return parsed
 end

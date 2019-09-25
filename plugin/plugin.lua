@@ -7,3 +7,17 @@
 --This file will NOT:
 --  Define how the browser starts
 --  Load plugins
+
+local ribbon = require()
+
+local class = ribbon.require "class"
+
+local plugin = ...
+
+local Plugin = {}
+plugin.Plugin = Plugin
+
+Plugin.cparents = {class.Class}
+function Plugin:__call(browser)
+	
+end
