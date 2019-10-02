@@ -8,6 +8,8 @@
 --  Define how the browser starts
 --  Load plugins
 
+--TODO: Set plugin paths
+
 local ribbon = require()
 
 local class = ribbon.require "class"

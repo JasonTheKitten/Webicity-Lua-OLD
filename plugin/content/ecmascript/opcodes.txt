@@ -1,0 +1,55 @@
+//It is easiest to first convert ES to opcodes, and then run the opcodes
+//This opcode notation is not designed to be serializable
+//I am skipping hex numbers for now
+
+//LOCAL1 and LOCAL2 are two virtual numbers
+//The local stack is a LIFO queue that can be read at any location
+//The argument stack is a LIFO queue that can only be read from the top
+//The pointer stack is a LIFO queue that can only be read from the top
+//The global window object is a constant object whose `__proto__` is set to `[object Window]`.
+
+//Honestly, I have no idea what I am doing
+//I haven't even finished reading the spec (:
+//Also, I am designing these opcodes myself
+
+NOP //Does... nothing?
+EXTOP //Reserved for future use. Ignore the next opcode.
+BRKP //Pause script execution
+BRKP_IF //Pause script execution if LOCAL2 is not 0
+--
+ARGPOP //Pop the top value of the argument stack into LOCAL1
+ARGPUSH //Push the value of LOCAL2 into the argument stack
+POP //Pop the local stack into LOCAL1
+PUSH //Push the value of LOCAL2 into the local stack
+COPY //Copy the top value of the local stack into LOCAL1
+COPYI //Copy the nth value up the local stack into LOCAL1, where n is an integer stored near the opcode
+SET //Set the top value of the local stack to the value of LOCAL2
+SETI //Set the nth value up the local stack to the value of LOCAL2, where n is an integer stored near the opcode
+DISCARD //Discard the top value of the local stack
+DISCARDI //Discard the nth value up the local stack, where n is an integer stored near the opcode
+SLOCALS //Swap the values of LOCAL1 and LOCAL2
+GGLOBAL //Set the value of LOCAL1 to the global window object
+GKEY //Set the value of LOCAL2 to the value held at key value LOCAL1 of the object in LOCAL2
+--
+ADD //Add the value of LOCAL1 to the value of LOCAL2 and store the result into LOCAL2
+SUB //Subtract the value of LOCAL1 from the value of LOCAL2 and store the result into LOCAL2
+MUL //Multiply the value of LOCAL2 by the value of LOCAL1 and store the result into LOCAL2
+DIV //Divide the value of LOCAL2 by the value of LOCAL1 and store the result into LOCAL2
+MOD //Modulo the value of LOCAL2 by the value of LOCAL1 and stor the result into LOCAL2
+--
+JMP //Jump n instructions, where n is an integer stored near the opcode
+JMP_IF //Jump n instructions if LOCAL2 is not 0, where n is an integer stored near the opcode
+SWITCH //TODO
+
+
+--
+//TODO: Fit these in, when I get a chance
+CALL
+RETURN
+LT //Uses top value of local stack and LOCAL2 to do comparisons; ignores LOCAL1
+GT
+EQ
+EQS
+OR
+AND
+NEW

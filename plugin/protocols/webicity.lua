@@ -1,10 +1,8 @@
 local ribbon = require()
 
-local Protocol = ribbon.reqpath()
+local Protocol = ribbon.require("${CLASS}/net/protocol.lua")
 
+local webicity = ...
 
-
-local api = ...
-api.registerProtocol = function(browser)
-    browser:registerProtocol("webicity", protocol)
-end
+local Webicity = {}
+webicity.Webicity = {}

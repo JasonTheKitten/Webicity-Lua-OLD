@@ -44,13 +44,7 @@ local results = {pcall(function(...)
 	local process = process or prequire("process")
 	local filesystem = filesystem or prequire("filesystem")
 	if not loadfile or not ((shell and fs) or (shell and process and filesystem)) then
-		if filesystem and shell then
-			print("Plan9k is not supported. Please use a better operating system.")
-			print("Here are some ideas:\n\tOpenOS\n\tCraftOS")
-			return
-		else
-			error("Unsupported operating environment", 1)
-		end
+		error("Unsupported operating environment\nPlease try the latest version of OpenOS or CraftOS", -1)
 	end
 	local isOC = not fs
 	
@@ -98,7 +92,7 @@ local results = {pcall(function(...)
 	ribbon, err = loadfile(corePath, env)
 	if err then
 		baseError = "Corrupt or Missing File!"
-		error("FILE: "..corePath.."\nROR: "..err)
+		error("FILE: "..corePath.."\nERROR: "..err)
 	end
 	
 	--Setup Ribbon

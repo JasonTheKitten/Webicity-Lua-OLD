@@ -16,10 +16,10 @@ local Label = ribbon.require("component/label").Label
 local BrowserFrame = ribbon.reqpath("${CLASS}/component/browserframe").BrowserFrame
 local BrowserInstance = ribbon.reqpath("${CLASS}/browser/browserinstance").BrowserInstance
 
-local util = ribbon.require "util"
+--[[local util = ribbon.require "util"
 local HTMLParser = ribbon.reqpath("${DIR}/plugin/content/html/parser").HTMLParser
 local Buffer = ribbon.reqpath("${CLASS}/string/buffer").Buffer
-HTMLParser.parse(class.new(Buffer, util.inf(ribbon.resolvePath("${DIR}/../testw.html"))))
+HTMLParser.parse(class.new(Buffer, util.inf(ribbon.resolvePath("${DIR}/../testw.html"))))]]
 
 local datapath, data = ribbon.resolvePath("${DATA}"), {}
 if datapath~="${DATA}" then
