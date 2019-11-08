@@ -31,7 +31,7 @@ function Object:getName()
 end
 
 function Object:toString()
-    return self:getType().." "..self:getName().."([ArgumentStack]){[...]}"
+    return self:getType().." "..self:getName().."(){ [...] }"
 end
 
 local ArgumentStack = {}
@@ -46,9 +46,8 @@ function ArgumentStack:push(v)
     self.depth = self.depth+1
     self.arguments[depth] = v
 end
-function ArgumentStack:pop()
-    self.depth = self.depth-1
-    return self.arguments[self.depth+1]
+function ArgumentStack:get(d)
+    return self.arguments[d]
 end
 function ArgumentStack:depth(d)
     if d then self.depth = d else return self.depth end

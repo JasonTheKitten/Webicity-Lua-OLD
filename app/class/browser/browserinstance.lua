@@ -4,6 +4,7 @@ local class = ribbon.require "class"
 local debugger = ribbon.require "debugger"
 local filesystem = ribbon.require "filesystem"
 local task = ribbon.require "task"
+local util = ribbon.require "util"
 
 local Protocol = ribbon.reqpath("${CLASS}/net/protocol").Protocol
 
@@ -18,12 +19,16 @@ function BrowserInstance:__call()
 	self.plugins = {}
     self.protocols = {}
     self.mimes = {}
+    
+    self.specialProtocols = util.reverse {"webicity", "about"}
+    self.actionSchemes = util.reverse {"javascript"}
 end
 
 function BrowserInstance:loadplugins(pluginc)
 	for k, v in pairs(pluginc) do
 		local pluginfile = filesystem.combine(ribbon.resolvePath(v.plugin), "plugin")
 		local ok, err = pcall(function()
+			--Temp system
 			local plugin = ribbon.reqpath(pluginfile)
 			local Plugin = class.new(plugin.Plugin, self)
 		end)
@@ -39,14 +44,14 @@ function BrowserInstance:addTask(f)
 end
 
 function BrowserInstance:registerProtocol(protocol, c)
-    class.checkType(c, Protocol, 2, "Protocol")
+    --class.checkType(c, Protocol, 2, "Protocol")
     self.protocols[protocol] = c
 end
 function BrowserInstance:getProtocol(protocol)
     return self.protocols[protocol]
 end
 function BrowserInstance:getDefaultProtocol()
-	
+	return self.protocols["http"]
 end
 
 function BrowserInstance:registerMimeType(mimetype, c)

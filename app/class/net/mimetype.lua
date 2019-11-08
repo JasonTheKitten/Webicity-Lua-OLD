@@ -8,6 +8,6 @@ local MimeType = {}
 mimetype.MimeType = MimeType
 
 MimeType.cparents = {class.Class}
-function MimeType:submit(data)
+function MimeType:submit(response)
     error("This method should be overriden")
 end

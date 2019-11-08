@@ -23,6 +23,17 @@ function URL:__call(data)
     end
 end
 
+function URL:getHost()
+	return self.host
+end
+function URL:getPath()
+	local path = ""
+	for i=1, #self.path do
+		path=path.."/"..self.path[i]
+	end
+	return path
+end
+
 function URL:toString()
 	local rtn = ""
 	if self.scheme then rtn = self.scheme..":" end

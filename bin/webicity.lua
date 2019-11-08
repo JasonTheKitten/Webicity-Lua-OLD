@@ -12,6 +12,7 @@ local APP = {
 		CMD = "${APP}/app.lua",
 		DATA = "${DIR}/data",
 		DIR = "${PATH}/..",
+		MODULE = "${APP}/module",
 		ROOT = "/",
 		
 		LOCALE = "en_US",

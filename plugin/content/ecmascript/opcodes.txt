@@ -1,12 +1,16 @@
 //It is easiest to first convert ES to opcodes, and then run the opcodes
-//This opcode notation is not designed to be serializable
 //I am skipping hex numbers for now
 
+//This opcode notation is not designed to be serializable. 
+//    *For example, SWITCH assumes that n[index] can be greater than one byte, and that the size is already known.
+
 //LOCAL1 and LOCAL2 are two virtual numbers
+//The argument list is a list that can be read at any location
 //The local stack is a LIFO queue that can be read at any location
-//The argument stack is a LIFO queue that can only be read from the top
-//The pointer stack is a LIFO queue that can only be read from the top
-//The global window object is a constant object whose `__proto__` is set to `[object Window]`.
+//The pointer stack is a LIFO queue that can only be accessed from the top
+//The frame stack is a LIFO queue that can only be accessed from the top
+//The global window object is a constant object whose `__proto__` is set to `[object Window]`
+//The variable n is a list of integers stored near the opcode. Refrences to n without an index mean n[1]
 
 //Honestly, I have no idea what I am doing
 //I haven't even finished reading the spec (:
@@ -17,16 +21,16 @@ EXTOP //Reserved for future use. Ignore the next opcode.
 BRKP //Pause script execution
 BRKP_IF //Pause script execution if LOCAL2 is not 0
 --
-ARGPOP //Pop the top value of the argument stack into LOCAL1
-ARGPUSH //Push the value of LOCAL2 into the argument stack
+ARGPUSH //Push the value of LOCAL2 into the argument list
+ARGREAD //Read the nth value of the argument list into LOCAL1
 POP //Pop the local stack into LOCAL1
 PUSH //Push the value of LOCAL2 into the local stack
 COPY //Copy the top value of the local stack into LOCAL1
-COPYI //Copy the nth value up the local stack into LOCAL1, where n is an integer stored near the opcode
+COPYI //Copy the nth value up the local stack into LOCAL1
 SET //Set the top value of the local stack to the value of LOCAL2
-SETI //Set the nth value up the local stack to the value of LOCAL2, where n is an integer stored near the opcode
+SETI //Set the nth value up the local stack to the value of LOCAL2
 DISCARD //Discard the top value of the local stack
-DISCARDI //Discard the nth value up the local stack, where n is an integer stored near the opcode
+DISCARDI //Discard the nth value up the local stack
 SLOCALS //Swap the values of LOCAL1 and LOCAL2
 GGLOBAL //Set the value of LOCAL1 to the global window object
 GKEY //Set the value of LOCAL2 to the value held at key value LOCAL1 of the object in LOCAL2
@@ -35,21 +39,58 @@ ADD //Add the value of LOCAL1 to the value of LOCAL2 and store the result into L
 SUB //Subtract the value of LOCAL1 from the value of LOCAL2 and store the result into LOCAL2
 MUL //Multiply the value of LOCAL2 by the value of LOCAL1 and store the result into LOCAL2
 DIV //Divide the value of LOCAL2 by the value of LOCAL1 and store the result into LOCAL2
-MOD //Modulo the value of LOCAL2 by the value of LOCAL1 and stor the result into LOCAL2
+MOD //Modulo the value of LOCAL2 by the value of LOCAL1 and store the result into LOCAL2
+EXP //Raise the value of LOCAL2 by the value of LOCAL1 and store the result into LOCAL2
+BLSH //Shift the value of LOCAL2 left by the value of LOCAL1, and store the result into LOCAL2
+BRSH //Shift the value of LOCAL2 right by the value if LOCAL1, and store the result into LOCAL2
+BRSHU //Shift the value of LOCAL2 right (unsigned) by the value if LOCAL1, and store the result into LOCAL2
+BAND //AND the values of LOCAL1 and LOCAL2, then store the result into LOCAL2
+BOR //OR the values of LOCAL1 and LOCAL2, then store the result into LOCAL2
+BXOR //XOR the values of LOCAL1 and LOCAL2, then store the result into LOCAL2
+LT //Compares the values of LOCAL1 and LOCAL2 using the less-than comparison method; stores the result into LOCAL2
+LTE //Compares the values of LOCAL1 and LOCAL2 using the less-than-equal comparison method; stores the result into LOCAL2
+LTES //Compares the values of LOCAL1 and LOCAL2 using the less-than-equal-strict comparison method; stores the result into LOCAL2
+GT //Compares the values of LOCAL1 and LOCAL2 using the greater-than comparison method; stores the result into LOCAL2
+GTE //Compares the values of LOCAL1 and LOCAL2 using the greater-than-equal comparison method; stores the result into LOCAL2
+GTES //Compares the values of LOCAL1 and LOCAL2 using the greater-than-equal-strict comparison method; stores the result into LOCAL2
+EQ //Compares the values of LOCAL1 and LOCAL2 using the equal comparison method; stores the result into LOCAL2
+EQS //Compares the values of LOCAL1 and LOCAL2 using the equal-strict comparison method; stores the result into LOCAL2
+NOT //Converts LOCAL2 to a boolean, if necessary. Sets LOCAL2 to the invert of LOCAL2
 --
 JMP //Jump n instructions, where n is an integer stored near the opcode
-JMP_IF //Jump n instructions if LOCAL2 is not 0, where n is an integer stored near the opcode
-SWITCH //TODO
-
-
+JMP_IF //Jump n instructions if LOCAL2 is not 0
+SWITCH /*
+    TODO: Specify that addresses are relative
+    Let val equal the value of LOCAL2
+    Let i equal 1
+    Let case_addr = undefined
+    Let final_addr equal the value of n[1]
+    Let default_case equal the value of n[2]
+    Let n_cases equal the value of n[3] plus 1 
+    While i<=n_cases and case_addr = undefined, check if the value of n[2+i*2] equals val and i does not equal default_case
+    If so, then set case_addr to the value of n[2+i*2]
+    Otherwise, set i equal to i plus 1
+    If case_addr is equal to undefined, set case_addr to n[2+default_case*2]
+    Let jump_address equal the value stored at the address reffered to by case_addr
+    Run the subroutine that is at the adress reffered to by jump_address
+    If the subroutine breaks, jump to the address refferred to by final_addr
+    */
 --
 //TODO: Fit these in, when I get a chance
 CALL
+CALLASYNC
+AWAIT
 RETURN
-LT //Uses top value of local stack and LOCAL2 to do comparisons; ignores LOCAL1
-GT
-EQ
-EQS
-OR
-AND
+BRK
+FORIN
+FORASYNCIN
+WHILE
+NEXT
 NEW
+TRY //IMPORTANT: Record the local stack depth under ID n[?]
+CATCH //IMPORTANT: Restore the local stack depth from ID n[?]
+THROW
+RCDEPTH //Record the local stack depth under ID n
+RSDEPTH //Restore the local stack depth from ID n
+IMPPORT //Modules
+EXPORT //Modules

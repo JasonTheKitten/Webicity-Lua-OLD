@@ -27,5 +27,5 @@ function PFunctionObject:invoke(argstack, this)
 end
 
 function Object:toString()
-    return "native "..FunctionObject.toString(self)
+    return self:getType().." "..self:getName().."(){ [native code] }"
 end

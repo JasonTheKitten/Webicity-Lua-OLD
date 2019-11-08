@@ -8,6 +8,10 @@ local Protocol = {}
 protocol.Protocol = Protocol
 
 Protocol.cparents = {class.Class}
-function Protocol:submit(data)
+function Protocol:__call(browser)
+    this.browser = browser
+end
+
+function Protocol:submit(response)
     error("This method should be overriden")
 end

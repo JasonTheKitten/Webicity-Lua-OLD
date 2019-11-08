@@ -23,7 +23,9 @@ HTMLParser.parse(class.new(Buffer, util.inf(ribbon.resolvePath("${DIR}/../testw.
 
 local datapath, data = ribbon.resolvePath("${DATA}"), {}
 if datapath~="${DATA}" then
-	--TODO: filesystem.makeDir (Ribbon)
+	--if not filesystem.exists(ribbon.resolvePath("${DATA}")) then
+	   --filesystem.makeDir(ribbon.resolvePath("${DATA}"))
+	--end
 	if not filesystem.exists(ribbon.resolvePath("${DATA}/plugins.json")) then
 		util.outf(ribbon.resolvePath("${DATA}/plugins.json"), "[{\"plugin\":\"${DIR}/plugin\", \"internal\":true}]")
 	end
@@ -54,7 +56,9 @@ basecomponent.execute(function(gd)
     
 	local browserInstance = class.new(BrowserInstance)
 	browserInstance:loadplugins({{
-		plugin = "${DIR}/plugin/"
+		plugin = "${DIR}/plugin/",
+		id = "webicity.web.core",
+		name = "Webicity Core"
 	}})
 	
     local baseComponent = class.new(basecomponent.BaseComponent, ctx, process)
@@ -97,7 +101,7 @@ basecomponent.execute(function(gd)
 	
 	class.new(BrowserFrame, contentpane, browserInstance):attribute(
 		"width", {1}, "height", {1, -1},
-		"URL", "file://test.html",
+		"URL", "file://test.txt",
 		"ondisplaytitleupdate", function(title)
 			viewport:getComponentByID("title"):attribute("text", title)
 		end
