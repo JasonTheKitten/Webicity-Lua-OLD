@@ -100,7 +100,7 @@ basecomponent.execute(function(gd)
     local contentpane = viewport:getComponentByID("content-pane")
 	
 	class.new(BrowserFrame, contentpane, browserInstance):attribute(
-		"width", {1}, "height", {1, -1},
+		"width", {1}, "height", {1},
 		"URL", "file://test.txt",
 		"ondisplaytitleupdate", function(title)
 			viewport:getComponentByID("title"):attribute("text", title)

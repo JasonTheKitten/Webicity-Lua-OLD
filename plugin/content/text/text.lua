@@ -5,6 +5,7 @@ local process = ribbon.require "process"
 local statics = ribbon.require "statics"
 
 local BufferedComponent = ribbon.require("component/bufferedcomponent").BufferedComponent
+local BlockComponent = ribbon.require("component/blockcomponent").BlockComponent
 local Label = ribbon.require("component/label").Label
 
 local MimeType = ribbon.reqpath("${CLASS}/net/mimetype").MimeType
@@ -21,7 +22,7 @@ function Text:submit(response)
     local frame = response.data.frame
     frame:removeChildren()
     
-	local bc = class.new(BufferedComponent, frame):attribute(
+	local bc = class.new(BlockComponent, frame):attribute(
 		"height", {1}, "width", {1},
 		"children", {
 			class.new(Label, nil, response.content)
@@ -29,9 +30,9 @@ function Text:submit(response)
 	)
 	process.addEventListener("key_down", function(n, e)
 		if e.code == KEYS.DOWN then
-			bc:scroll(1)
+			bc:scrollY(1)
 		elseif e.code == KEYS.UP then
-			bc:scroll(-1)
+			bc:scrollY(-1)
 		end
 	end)
 end
