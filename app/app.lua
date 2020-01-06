@@ -7,6 +7,7 @@ local statics = ribbon.require "statics"
 local task = ribbon.require "task"
 local util = ribbon.require "util"
 local process = ribbon.require "process"
+local debugger = ribbon.require("debugger")
 
 local BlockComponent = ribbon.require("component/blockcomponent").BlockComponent
 local Button = ribbon.require("component/button").Button
@@ -16,10 +17,12 @@ local Label = ribbon.require("component/label").Label
 local BrowserFrame = ribbon.reqpath("${CLASS}/component/browserframe").BrowserFrame
 local BrowserInstance = ribbon.reqpath("${CLASS}/browser/browserinstance").BrowserInstance
 
---[[local util = ribbon.require "util"
 local HTMLParser = ribbon.reqpath("${DIR}/plugin/content/html/parser").HTMLParser
 local Buffer = ribbon.reqpath("${CLASS}/string/buffer").Buffer
-HTMLParser.parse(class.new(Buffer, util.inf(ribbon.resolvePath("${DIR}/../testw.html"))))]]
+local clock = os.clock()
+HTMLParser.parse(class.new(Buffer, util.inf(ribbon.resolvePath("${DIR}/../testw.html"))))
+debugger.log(os.clock()-clock)
+if true then return end
 
 local datapath, data = ribbon.resolvePath("${DATA}"), {}
 if datapath~="${DATA}" then
@@ -36,87 +39,75 @@ end
 
 local COLORS = statics.get("colors")
 
-local running, doRefresh = true, false
-basecomponent.execute(function(gd)
-    local ctx = gd(0)
-	
-	local function refresh()
-		doRefresh = true
+local running = true
+
+local function quit()
+	running = false
+end
+local function quitButton(e)
+	if e.button == 1 then quit() end
+end
+
+local menubar = class.new(HSpan):attribute(
+	"id", menubar
+)
+
+local browserInstance = class.new(BrowserInstance)
+browserInstance:loadplugins({{
+	plugin = "${DIR}/plugin/",
+	id = "webicity.web.core",
+	name = "Webicity Core"
+}})
+
+local baseComponent = class.new(basecomponent.BaseComponent)
+local viewport = baseComponent:getDefaultComponent():attribute(
+	"id", "viewport",
+	"width", {1},
+	"height", {1},
+	"children", {
+		class.new(HSpan):attribute(
+			"id", "titlebar",
+			"width", {1, 0},
+			"background-color", COLORS.BLACK,
+			"text-color", COLORS.ORANGE,
+			"children", {
+				class.new(Button, nil, "="):attribute(
+					"selected-text-color", COLORS.RED
+				),
+				class.new(Label, nil, " "),
+				class.new(Label, nil, "Webicity Web Browser"):attribute(
+					"id", "title",
+					"text-color", COLORS.WHITE,
+					"enable-wrap", false
+				),
+				class.new(Button, nil, "x"):attribute(
+					"selected-text-color", COLORS.RED,
+					"location", {1, -1, 0, 0},
+					"onrelease", quitButton
+				)
+			}
+		),
+		class.new(BlockComponent):attribute(
+			"id", "content-pane",
+			"width", {1}, "height", {1, -1}
+		)
+	}
+)
+
+local contentpane = viewport:getComponentByID("content-pane")
+
+class.new(BrowserFrame, contentpane, browserInstance):attribute(
+	"width", {1}, "height", {1},
+	"URL", "https://google.com/",
+	"ondisplaytitleupdate", function(title)
+		viewport:getComponentByID("title"):attribute("text", title)
 	end
-	local function quit()
-		running = false
-	end
-	local function quitButton(e)
-		if e.button == 1 then quit() end
-	end
-    
-    local menubar = class.new(HSpan):attribute(
-        "id", menubar
-    )
-    
-	local browserInstance = class.new(BrowserInstance)
-	browserInstance:loadplugins({{
-		plugin = "${DIR}/plugin/",
-		id = "webicity.web.core",
-		name = "Webicity Core"
-	}})
-	
-    local baseComponent = class.new(basecomponent.BaseComponent, ctx, process)
-	local viewport = baseComponent:getDefaultComponent():attribute(
-		"id", "viewport",
-		"onupdate", refresh,
-		"width", {1},
-		"height", {1},
-        "children", {
-            class.new(HSpan):attribute(
-                "id", "titlebar",
-                "width", {1, 0},
-                "background-color", COLORS.BLACK,
-                "text-color", COLORS.ORANGE,
-                "children", {
-                    class.new(Button, nil, "="):attribute(
-						"selected-text-color", COLORS.RED
-					),
-					class.new(Label, nil, " "),
-                    class.new(Label, nil, "Webicity Web Browser"):attribute(
-						"id", "title",
-                        "text-color", COLORS.WHITE,
-						"enable-wrap", false
-                    ),
-                    class.new(Button, nil, "x"):attribute(
-						"selected-text-color", COLORS.RED,
-                        "location", {1, -1, 0, 0},
-                        "onrelease", quitButton
-                    )
-                }
-            ),
-            class.new(BlockComponent):attribute(
-                "id", "content-pane",
-				"width", {1}, "height", {1, -1}
-            )
-        }
-    )
-    
-    local contentpane = viewport:getComponentByID("content-pane")
-	
-	class.new(BrowserFrame, contentpane, browserInstance):attribute(
-		"width", {1}, "height", {1},
-		"URL", "file://test.txt",
-		"ondisplaytitleupdate", function(title)
-			viewport:getComponentByID("title"):attribute("text", title)
-		end
-	)
-	
-	--Main
-	baseComponent:render()
+)
+
+--Main
+while running and browserInstance:continue() do
+	baseComponent:renderUpdated()
 	coroutine.yield()
-	while running and browserInstance:continue() do
-		coroutine.yield()
-		if doRefresh or baseComponent:update() then 
-			baseComponent:render()
-			doRefresh = false
-		end
-	end
-	
-	ctx.clear(COLORS.BLACK)
-end)
+end
+
+baseComponent.context.clear(COLORS.BLACK)

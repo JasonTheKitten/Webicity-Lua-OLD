@@ -29,9 +29,11 @@ function File:submit(request)
             local content = file.readAll()
             file.close()
             
+            local contentType = "text/plain"
+            
             response = class.new(Response, content, {
                 headers = {
-					["Content-Type"] = "text/plain"
+					["Content-Type"] = contentType
 				},
                 frame = request.data.frame
             })

@@ -108,7 +108,9 @@ local results = {pcall(function(...)
 	
 	--Execute app
 	baseError = "Application crashed!"
-	return ribbon.execute(APP.PATHS.CMD, ...)
+    return ribbon.require("contextmanager").inContextManager(function(...)
+        return ribbon.execute(APP.PATHS.CMD, ...)
+    end, ...)
 end, ...)}
 
 --Error checking

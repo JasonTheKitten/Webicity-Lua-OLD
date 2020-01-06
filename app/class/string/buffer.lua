@@ -1,6 +1,7 @@
 local ribbon = require()
 
 local class = ribbon.require "class"
+local util = ribbon.require "util"
 
 --Buffer
 --TODO: Optimize for memory
@@ -25,17 +26,16 @@ end
 function Buffer:eat(n) --TODO: Buffer:eatChunks()
 	--Removes first n characters from stream 
 	--and returns them
-	n = n or 1
-	local str = self.buffer:sub(self.pointer, self.pointer+n-1)
 	self.pointer = self.pointer + n
-	while self.pointer > self.chunksize do
-	   self.buffer = self.buffer:sub(self.chunksize+1, self.buffersize)
-	   self.pointer, self.buffersize = self.pointer - self.chunksize, self.buffersize - self.chunksize
-	end
-	return str
+	return self.buffer:sub(self.pointer-n, self.pointer-1)
 end
 function Buffer:peek(l)
 	return self.buffer:sub(self.pointer, self.pointer+l-1)
 end
-
-Buffer.chunksize = 2^16
+function Buffer:find(pattern)
+    return self.buffer:find(pattern, self.pointer)
+end
+function Buffer:findAny(pattern)
+	local r = util.stringFindAny(self.buffer, pattern, self.pointer)
+    if r then return r-self.pointer+1 end
+end

@@ -2,13 +2,12 @@ local ribbon = require()
 
 local class = ribbon.require "class"
 local util = ribbon.require "util"
-local environment = ribbon.require "environment"
+local debugger = ribbon.require "debugger"
+local process = ribbon.require "process"
 
 local Buffer = ribbon.reqpath("${CLASS}/string/buffer").Buffer
 
 local parser = ...
-
-local isOC = environment.is("OC")
 
 local HTMLParser = {}
 parser.HTMLParser = HTMLParser
@@ -32,37 +31,17 @@ function HTMLParser.parse(buffer)
     local STATE_LOOKUP, state, return_state, token, tmp_buf
     local attr_name, attr_value, quote_type, lastStartTagTokenName
 	
-	local function matches(v, ...) --TODO: Move to Ribbon
-		for k, m in pairs({...}) do
-			if v==m then return true end
+	local function matches(v, s) --TODO: Move to Ribbon
+		for i=1, #s do
+			if v==s[i] then return true end
 		end
 		return false
 	end
 
-	local function strlookfor(part, pattern)
-		if isOC then
-			local fres
-			for i=1, #pattern do --Avoid patterns, as they are slow on OC
-				local res = part:find(pattern:sub(i, i))
-				if res then
-					fres = fres or res
-					fres = (res<fres and res) or fres
-				end
-			end
-			return fres
-		else
-			return part:find("["..pattern.."]")
-		end
-	end
+	local n
 	local function lookfor(pattern)
-		local len = 0
-		while not buffer:isEmpty(len) do
-			len = len+buffer.chunksize
-			local part = buffer:peek(len)
-			local fres = strlookfor(part, pattern)
-			if fres then return fres end
-		end
-		return buffer:length()+1
+		n = buffer:findAny(pattern) or buffer:length()+1
+		return (n<2 and 2) or n
 	end
 
 	local MODE_LOOKUP, insertion_mode, original_insertion_mode
@@ -88,7 +67,7 @@ function HTMLParser.parse(buffer)
                 elseif token[1] == TOKEN_TYPES.CHARACTER and whitespace[token[2]] then
                 elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "html" then
                 
-				elseif token[1] == TOKEN_TYPES.END_TAG and not matches(token[2], "head", "body", "html", "br") then
+				elseif token[1] == TOKEN_TYPES.END_TAG and not matches(token[2], {"head", "body", "html", "br"}) then
 					
 				else
 					
@@ -105,7 +84,7 @@ function HTMLParser.parse(buffer)
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "head" then
 					
 					insertion_mode = MODE_LOOKUP.IN_HEAD
-				elseif token[1] == TOKEN_TYPES.END_TAG and not matches(token[2], "head", "body", "html", "br") then
+				elseif token[1] == TOKEN_TYPES.END_TAG and not matches(token[2], {"head", "body", "html", "br"}) then
 				else
 				
 					insertion_mode, reprocess = MODE_LOOKUP.IN_HEAD, true
@@ -119,7 +98,7 @@ function HTMLParser.parse(buffer)
 				elseif token[1] == TOKEN_TYPES.DOCTYPE then
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "html" then
 					mode_override, reprocess = MODE_LOOKUP.IN_BODY, true
-				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], "base", "basefont", "bgsound", "link") then
+				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], {"base", "basefont", "bgsound", "link"}) then
 					
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "meta" then
 					
@@ -128,7 +107,7 @@ function HTMLParser.parse(buffer)
 					state = STATE_LOOKUP.RCDATA
 					original_insertion_mode = insertion_mode
 					insertion_mode = MODE_LOOKUP.TEXT
-				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], "noscript", "noframes", "style") then
+				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], {"noscript", "noframes", "style"}) then
 					--TODO
 					state = STATE_LOOKUP.RAWTEXT
 					original_insertion_mode = insertion_mode
@@ -147,7 +126,7 @@ function HTMLParser.parse(buffer)
 				
 				
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "head" then
-				elseif token[1] == TOKEN_TYPES.END_TAG and not matches(token[2], "body", "html", "br") then
+				elseif token[1] == TOKEN_TYPES.END_TAG and not matches(token[2], {"body", "html", "br"}) then
 				else
 				
 					insertion_mode, reprocess = MODE_LOOKUP.AFTER_HEAD, true
@@ -171,14 +150,14 @@ function HTMLParser.parse(buffer)
 					
 					insertion_mode = MODE_LOOKUP.IN_FRAMESET
 				elseif token[1] == TOKEN_TYPES.START_TAG and
-					matches(token[2], "base", "basefont", "bgsound", "link", "meta", "noframes", "script", "style", "template", "title") then
+					matches(token[2], {"base", "basefont", "bgsound", "link", "meta", "noframes", "script", "style", "template", "title"}) then
 					
 					mode_override, reprocess = MODE_LOOKUP.IN_HEAD, true --TODO: Call function instead?
 					
 				elseif token[1] == TOKEN_TYPES.END_TAG and token[2]=="template" then
 					mode_override, reprocess = MODE_LOOKUP.IN_HEAD, true
 				elseif (token[1] == TOKEN_TYPES.START_TAG and token[2] == "head") or
-					(token[1] == TOKEN_TYPES.END_TAG and not matches(token[2], "body", "html", "br")) then
+					(token[1] == TOKEN_TYPES.END_TAG and not matches(token[2], {"body", "html", "br"})) then
 				else
 					
 					insertion_mode, reprocess = MODE_LOOKUP.IN_BODY, true
@@ -196,7 +175,7 @@ function HTMLParser.parse(buffer)
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "html" then
 				
 				elseif (token[1] == TOKEN_TYPES.START_TAG
-					and matches(token[2], "base", "basefont", "bgsound", "link", "meta", "noframes", "script", "style", "template", "title")) or
+					and matches(token[2], {"base", "basefont", "bgsound", "link", "meta", "noframes", "script", "style", "template", "title"})) or
 					(token[1] == TOKEN_TYPES.END_TAG and token[2] == "template") then
 					
 					mode_override, reprocess = MODE_LOOKUP.IN_HEAD, true
@@ -213,18 +192,18 @@ function HTMLParser.parse(buffer)
 					
 					insertion_mode, reprocess = MODE_LOOKUP.AFTER_BODY, true
 				elseif token[1] == TOKEN_TYPES.START_TAG and 
-					matches(token[2],"address", "article", "aside", "blockquote", "center", "details", "dialog", "dir", "div", "dl", "fieldset", "figcaption",
-						"figure", "footer", "header", "hgroup", "main", "menu", "nav", "ol", "p", "section", "summary", "ul") then
+					matches(token[2],{"address", "article", "aside", "blockquote", "center", "details", "dialog", "dir", "div", "dl", "fieldset", "figcaption",
+						"figure", "footer", "header", "hgroup", "main", "menu", "nav", "ol", "p", "section", "summary", "ul"}) then
 				
-				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], "h1", "h2", "h3", "h4", "h5", "h6") then
+				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], {"h1", "h2", "h3", "h4", "h5", "h6"}) then
 				
-				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], "pre", "listing") then
+				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], {"pre", "listing"}) then
 				
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "form" then
 				
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "li" then
 				
-				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], "dd", "dt") then
+				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], {"dd", "dt"}) then
 				
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "plaintext" then
 					
@@ -232,8 +211,8 @@ function HTMLParser.parse(buffer)
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "button" then
 				
 				elseif token[1] == TOKEN_TYPES.END_TAG and
-					matches(token[2],"address", "article", "aside", "blockquote", "center", "details", "dialog", "dir", "div", "dl", "fieldset", "figcaption",
-						"figure", "footer", "header", "hgroup", "main", "menu", "nav", "ol", "p", "section", "summary", "ul") then
+					matches(token[2], {"address", "article", "aside", "blockquote", "center", "details", "dialog", "dir", "div", "dl", "fieldset", "figcaption",
+						"figure", "footer", "header", "hgroup", "main", "menu", "nav", "ol", "p", "section", "summary", "ul"}) then
 						
 						
 				elseif token[1] == TOKEN_TYPES.END_TAG and token[2] == "form" then
@@ -242,35 +221,35 @@ function HTMLParser.parse(buffer)
 				
 				elseif token[1] == TOKEN_TYPES.END_TAG and token[2] == "li" then
 				
-				elseif token[1] == TOKEN_TYPES.END_TAG and matches(token[2], "dd", "dt") then
+				elseif token[1] == TOKEN_TYPES.END_TAG and matches(token[2], {"dd", "dt"}) then
 				
-				elseif token[1] == TOKEN_TYPES.END_TAG and matches(token[2], "h1", "h2", "h3", "h4", "h5", "h6") then
+				elseif token[1] == TOKEN_TYPES.END_TAG and matches(token[2], {"h1", "h2", "h3", "h4", "h5", "h6"}) then
 				
 				elseif token[1] == TOKEN_TYPES.END_TAG and token[2] == "sarcasm" and false then
 					takeADeepBreath()
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "a" then
 				
 				elseif token[1] == TOKEN_TYPES.START_TAG and
-					matches(token[2], "b", "big", "code", "em", "font", "i", "s", "small", "strike", "strong", "tt", "u") then
+					matches(token[2], {"b", "big", "code", "em", "font", "i", "s", "small", "strike", "strong", "tt", "u"}) then
 					
 					
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "nobr" then
 				
 				elseif token[1] == TOKEN_TYPES.END_TAG and
-					matches(token[2], "a", "b", "big", "code", "em", "font", "i", "nobr", "s", "small", "strike", "strong", "tt", "u") then
+					matches(token[2], {"a", "b", "big", "code", "em", "font", "i", "nobr", "s", "small", "strike", "strong", "tt", "u"}) then
 					
 					
-				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], "applet", "marquee", "object") then
+				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], {"applet", "marquee", "object"}) then
 				
-				elseif token[1] == TOKEN_TYPES.END_TAG and matches(token[2], "applet", "marquee", "object") then
+				elseif token[1] == TOKEN_TYPES.END_TAG and matches(token[2], {"applet", "marquee", "object"}) then
 				
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2]=="table" then
 				
 				elseif token[1] == TOKEN_TYPES.END_TAG and token[2] == "br" then
 				
-				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], "area", "br", "embed", "img", "keygen", "wbr") then
+				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], {"area", "br", "embed", "img", "keygen", "wbr"}) then
 				
-				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], "param", "source", "track") then
+				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], {"param", "source", "track"}) then
 				
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "hr" then
 				
@@ -292,23 +271,23 @@ function HTMLParser.parse(buffer)
 					state = STATE_LOOKUP.RAWTEXT
 					original_insertion_mode = insertion_mode
 					insertion_mode = MODE_LOOKUP.TEXT
-				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], "noembed", "noscript") then
+				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], {"noembed", "noscript"}) then
 					state = STATE_LOOKUP.RAWTEXT
 					original_insertion_mode = insertion_mode
 					insertion_mode = MODE_LOOKUP.TEXT
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "select" then
 				
 					insertion_mode = MODE_LOOKUP.IN_SELECT
-				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], "rb", "rtc") then
+				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], {"rb", "rtc"}) then
 				
-				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], "rp", "rt") then
+				elseif token[1] == TOKEN_TYPES.START_TAG and matches(token[2], {"rp", "rt"}) then
 				
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "math" then
 				
 				elseif token[1] == TOKEN_TYPES.START_TAG and token[2] == "svg" then
 				
 				elseif token[1] == TOKEN_TYPES.START_TAG and
-					matches(token[2], "caption", "col", "colgroup", "frame", "head", "tbody", "td", "tfoot", "th", "thead", "tr") then
+					matches(token[2], {"caption", "col", "colgroup", "frame", "head", "tbody", "td", "tfoot", "th", "thead", "tr"}) then
 				elseif token[1] == TOKEN_TYPES.START_TAG then
 				
 				elseif token[2] == TOKEN_TYPES.END_TAG then
@@ -406,21 +385,22 @@ function HTMLParser.parse(buffer)
     
     STATE_LOOKUP = {
         ["DATA"] = function()
-            local char = buffer:eat(1)
+            local char = buffer:peek(1)
             if char == "&" then
+				buffer:eat(1)
                 return_state = STATE_LOOKUP.DATA
                 state = STATE_LOOKUP.CHARACTER_REFERENCE
             elseif char == "<" then
+				buffer:eat(1)
                 state = STATE_LOOKUP.TAG_OPEN
             elseif char == "\0" then
+				buffer:eat(1)
                 emit({TOKEN_TYPES.CHARACTER, REP_CHAR})
             elseif char == "" then
+				buffer:eat(1)
                 emit({TOKEN_TYPES.EOF})
             else
-				--print(char..buffer:peek(lookfor("&<\0")-1))
-                emit({TOKEN_TYPES.CHARACTER, char..buffer:eat(lookfor(" \t\n\f\r&<\0")-1)})
-                --buffer:eat(lookfor("&<\0")-1)
-                --emit({TOKEN_TYPES.CHARACTER, char})
+                emit({TOKEN_TYPES.CHARACTER, buffer:eat(lookfor(" \n\t\r&<\0")-1)})
             end
         end,
         ["RCDATA"] = function()
@@ -439,28 +419,33 @@ function HTMLParser.parse(buffer)
             end
         end,
         ["RAWTEXT"] = function()
-            local char = buffer:eat(1)
+            local char = buffer:peek(1)
             if char == "<" then
+				buffer:eat(1)
                 state = STATE_LOOKUP.RAWTEXT_LT
             elseif char == "\0" then
+				buffer:eat(1)
                 emit({TOKEN_TYPES.CHARACTER, REP_CHAR})
             elseif char == "" then
+				buffer:eat(1)
                 emit({TOKEN_TYPES.EOF})
             else
-                emit({TOKEN_TYPES.CHARACTER, char..buffer:eat(lookfor("<\0")-1)})
+                emit({TOKEN_TYPES.CHARACTER, buffer:eat(lookfor("<\0")-1)})
             end
         end,
         ["SCRIPT_DATA"] = function()
-            local char = buffer:eat(1)
+            local char = buffer:peek(1)
             if char == "<" then
+				buffer:eat(1)
                 state = STATE_LOOKUP.SCRIPT_DATA_LT
             elseif char == "\0" then
+				buffer:eat(1)
                 emit({TOKEN_TYPES.CHARACTER, REP_CHAR})
             elseif char == "" then
+				buffer:eat(1)
                 emit({TOKEN_TYPES.EOF})
             else
-                emit({TOKEN_TYPES.CHARACTER, char..buffer:eat(lookfor("<\0")-1)})
-                emit({TOKEN_TYPES.CHARACTER, char..buffer:eat(lookfor("<\0")-1)})
+                emit({TOKEN_TYPES.CHARACTER, buffer:eat(lookfor("<\0")-1)})
             end
         end,
         ["PLAINTEXT"] = function()
@@ -510,7 +495,7 @@ function HTMLParser.parse(buffer)
             end
         end,
         ["TAG_NAME"] = function()
-            local char = buffer:eat(1):lower()
+            local char = buffer:eat(1)
             if whitespace[char] then
                 state = STATE_LOOKUP.BEFORE_ATTR_NAME
             elseif char == "/" then
@@ -523,7 +508,7 @@ function HTMLParser.parse(buffer)
             elseif char == "" then
                 emit({TOKEN_TYPES.EOF})
             else
-                token[2] = token[2]..char
+                token[2] = token[2]..char:lower()
             end
         end,
         ["RCDATA_LT"] = function()
@@ -896,7 +881,7 @@ function HTMLParser.parse(buffer)
             elseif char == "\0" then
                 buffer:eat(1); attr_name=attr_name..REP_CHAR
             else
-                attr_name=attr_name..buffer:eat(1)..buffer:eat(lookfor(" \n\t\r/>=\0")-1):lower()
+                attr_name=attr_name..buffer:eat(lookfor(" \n\t\r/>=\0")-1):lower()
             end
         end,
         ["AFTER_ATTR_NAME"] = function()
@@ -934,36 +919,45 @@ function HTMLParser.parse(buffer)
             end
         end,
         ["ATTR_VAL_QUO"] = function()
-            local char = buffer:eat(1)
+            local char = buffer:peek(1)
             if char == quote_type then
+				buffer:eat(1)
                 state = STATE_LOOKUP.AFTER_ATTR_VAL
             elseif char == "&" then
+				buffer:eat(1)
                 return_state = state
                 state = STATE_LOOKUP.CHARACTER_REFERENCE
             elseif char == "\0" then
+				buffer:eat(1)
                 attr_value = attr_value..REP_CHAR
             elseif char == "" then
+				buffer:eat(1)
                 emit({TOKEN_TYPES.EOF})
             else
-                attr_value = attr_value..char..buffer:eat(lookfor(quote_type)-1)
+                attr_value = attr_value..buffer:eat(lookfor(quote_type)-1)
             end
         end,
         ["ATTR_VAL_NQ"] = function()
-            local char = buffer:eat(1)
+            local char = buffer:peek(1)
             if whitespace[char] then
+				buffer:eat(1)
                 state = STATE_LOOKUP.BEFORE_ATTR_NAME
             elseif char == "&" then
+				buffer:eat(1)
                 return_state = state
                 state = STATE_LOOKUP.CHARACTER_REFERENCE
             elseif char == ">" then
+				buffer:eat(1)
 				state = STATE_LOOKUP.DATA
                 emit(token)
             elseif char == "\0" then
+				buffer:eat(1)
                 attr_value = attr_value..REP_CHAR
             elseif char == "" then
+				buffer:eat(1)
                 emit({TOKEN_TYPES.EOF})
             else
-                attr_value = attr_value..char..buffer:eat(lookfor(" \t\r\n\f&>\0")-1)
+                attr_value = attr_value..buffer:eat(lookfor(" \t\r\n\f&>\0")-1)
             end
         end,
         ["AFTER_ATTR_VAL"] = function()
@@ -1489,15 +1483,16 @@ function HTMLParser.parse(buffer)
     
     state = STATE_LOOKUP.DATA
 	local tclock = os.clock()
+	process.setBusy(true)
     while not buffer:isEmpty() do
-		local ost, ct = state, os.clock()
 		state()
-		if os.clock()-tclock>.2 then
+		if os.clock()-tclock>2 then
 			coroutine.yield()
 			tclock = os.clock()
 		end
 	end
     state()
+	process.setBusy()
 	
 	
 	return parsed

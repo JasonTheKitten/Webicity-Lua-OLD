@@ -65,7 +65,10 @@ function BrowserFrame:processAttributes(updated)
 			local ok, res = pcall(protocol.submit, protocol, request)
 			if ok then
 				ok, res = pcall(function()
-					local mimetype = self.browser:getMimeType(res.data.headers["Content-Type"]) --TODO: Case sensitive
+					local mt = res.data.headers["Content-Type"]
+					if mt:find(";") then mt=mt:sub(1, mt:find(";")-1) end --TODO: Use mimeparse
+					local mimetype = self.browser:getMimeType(mt) --TODO: Case sensitive
+					if not mimetype then error("Protocol \""..(mt or "<?>").."\" not registered", -1) end
 					mimetype:submit(res)
 				end)
 			end

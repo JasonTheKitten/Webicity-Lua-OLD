@@ -13,8 +13,10 @@ local ribbon = require()
 
 local class = ribbon.require "class"
 
-local FileProtocol = ribbon.reqpath("${DIR}/plugin/protocols/file").File
-local TextMime = ribbon.reqpath("${DIR}/plugin/content/text/text").Text
+local FileProtocol = pluginapi.load("protocols/file").File
+local HTTPProtocol = pluginapi.load("protocols/http").HTTP
+local TextMimetype = pluginapi.load("content/text/text").Text
+local HTMLMimetype = pluginapi.load("content/html/html").HTML
 
 local plugin = ...
 
@@ -24,5 +26,8 @@ plugin.Plugin = Plugin
 Plugin.cparents = {class.Class}
 function Plugin:__call(browser)
 	browser:registerProtocol("file", FileProtocol)
-	browser:registerMimeType("text/plain", TextMime)
+	browser:registerProtocol("http", HTTPProtocol)
+	browser:registerProtocol("https", HTTPProtocol)
+	browser:registerMimeType("text/plain", TextMimetype)
+	browser:registerMimeType("text/html", HTMLMimetype)
 end

@@ -2,10 +2,10 @@ local ribbon = require()
 
 local class = ribbon.require "class"
 local debugger = ribbon.require "debugger"
-local filesystem = ribbon.require "filesystem"
 local task = ribbon.require "task"
 local util = ribbon.require "util"
 
+local PluginAPI = ribbon.reqpath("${CLASS}/browser/plugin/pluginapi").PluginAPI
 local Protocol = ribbon.reqpath("${CLASS}/net/protocol").Protocol
 
 local browserinstance = ...
@@ -25,11 +25,12 @@ function BrowserInstance:__call()
 end
 
 function BrowserInstance:loadplugins(pluginc)
-	for k, v in pairs(pluginc) do
-		local pluginfile = filesystem.combine(ribbon.resolvePath(v.plugin), "plugin")
+	for k, v in pairs(pluginc) do --TODO: Preload all plugins before init
+		local pluginfile = ribbon.resolvePath(v.plugin)
 		local ok, err = pcall(function()
 			--Temp system
-			local plugin = ribbon.reqpath(pluginfile)
+			local papi = class.new(PluginAPI, pluginfile).api
+			local plugin = papi.load("plugin")
 			local Plugin = class.new(plugin.Plugin, self)
 		end)
 		if not ok then

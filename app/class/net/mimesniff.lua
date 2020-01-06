@@ -1,0 +1,1 @@
+--TODO: Implement the MIME Sniffing Algorithm
